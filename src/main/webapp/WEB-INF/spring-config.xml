@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<context:component-scan base-package="com.kanaxis.sms.controller" />
+	<mvc:annotation-driven />
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/sms" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.kanaxis.sms.model.Employee</value>
+				<value>com.kanaxis.sms.model.Admission</value>
+				<value>com.kanaxis.sms.model.Attendance</value>
+				<value>com.kanaxis.sms.model.Classes</value>
+				<value>com.kanaxis.sms.model.ClassSubjectTeacherMapping</value>
+				<value>com.kanaxis.sms.model.Days</value>
+				<value>com.kanaxis.sms.model.Employee</value>
+				<value>com.kanaxis.sms.model.Exams</value>
+				<value>com.kanaxis.sms.model.MarksTable</value>
+				<value>com.kanaxis.sms.model.Messagetype</value>
+				<value>com.kanaxis.sms.model.MonthlywiseAttendance</value>
+				<value>com.kanaxis.sms.model.Notifications</value>
+				<value>com.kanaxis.sms.model.PermissionTable</value>
+				<value>com.kanaxis.sms.model.Rank</value>
+				<value>com.kanaxis.sms.model.Role</value>
+				<value>com.kanaxis.sms.model.RolePermissions</value>
+				<value>com.kanaxis.sms.model.Section</value>
+				<value>com.kanaxis.sms.model.Student</value>
+				<value>com.kanaxis.sms.model.Subject</value>
+				<value>com.kanaxis.sms.model.Teachers</value>
+				<value>com.kanaxis.sms.model.Timetable</value>
+				<value>com.kanaxis.sms.model.TransactionReport</value>
+				<value>com.kanaxis.sms.model.User</value>
+				<value>com.kanaxis.sms.model.WeekwiseAttendance</value>
+
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="persistenceExceptionTranslationPostProcessor"
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="maxUploadSize" value="268435456"/> <!-- 256 megs -->
+</bean>
+	<bean id="dataDao" class="com.kanaxis.sms.dao.impl.DataDaoImpl"></bean>
+	<bean id="dataServices" class="com.kanaxis.sms.services.impl.DataServicesImpl"></bean>
+	<bean id="loginDao" class="com.kanaxis.sms.dao.impl.LoginDaoImpl"></bean>
+	<bean id="loginService" class="com.kanaxis.sms.services.impl.LoginServiceImpl"></bean>
+	<bean id="admissionDao" class="com.kanaxis.sms.dao.impl.AdmissionDaoImpl"></bean>
+	<bean id="admissionService" class="com.kanaxis.sms.services.impl.AdmissionServiceImpl"></bean>
+	<bean id="timeTableDao" class="com.kanaxis.sms.dao.impl.TimeTableDaoImpl"></bean>
+	<bean id="timeTableService" class="com.kanaxis.sms.services.impl.TimeTableServiceImpl"></bean>
+	<bean id="teacherDao" class="com.kanaxis.sms.dao.impl.TeacherDaoImpl"></bean>
+	<bean id="teacherService" class="com.kanaxis.sms.services.impl.TeacherServiceImpl"></bean>
+	<bean id="notificationDao" class="com.kanaxis.sms.dao.impl.NotificationDaoImpl"></bean>
+	<bean id="notificationService" class="com.kanaxis.sms.services.impl.NotificationServiceImpl"></bean>
+	<bean id="studentDao" class="com.kanaxis.sms.dao.impl.StudentDaoImpl"></bean>
+	<bean id="studentService" class="com.kanaxis.sms.services.impl.StudentServiceImpl"></bean>
+	
+</beans>
