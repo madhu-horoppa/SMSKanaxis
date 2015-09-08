@@ -31,7 +31,7 @@ public class StudentDaoImpl implements StudentDao{
 	Transaction tx = null;
 
 	@Override
-	public ResultData addStudents(Vector dataHolder) {
+	public ResultData uploadStudents(Vector dataHolder) {
 		
 		session = sessionFactory.openSession();
 		tx = session.beginTransaction();
@@ -80,8 +80,7 @@ public class StudentDaoImpl implements StudentDao{
             lastName = list.get(1).toString();
             rollNumber = list.get(2).toString();
             String rollNumber1[] = rollNumber.split("\\.");
-            dateOfBirth = list.get(3).toString();
-            
+            dateOfBirth = list.get(3).toString();            
             gender = list.get(4).toString();
             bloodGroup = list.get(5).toString();
             relegion = list.get(6).toString();
@@ -117,10 +116,14 @@ public class StudentDaoImpl implements StudentDao{
             email = list.get(29).toString();
             joinedDate = list.get(30).toString();
             classes = list.get(31).toString();
-            section = list.get(32).toString();
+            section = list.get(32).toString();            
+            
 
-            try {
+            try {            	
+            	
             	student = new Student();
+            	student = (Student) session.get(Student.class, new Integer(rollNumber1[0]));
+            	if(student!=null){
             	student.setFirstName(firstName);
             	student.setLastName(lastName);
             	student.setRollNumber(Integer.parseInt(rollNumber1[0]));
@@ -174,6 +177,7 @@ public class StudentDaoImpl implements StudentDao{
             	session.save(student);        		
         		resultData.status = true;
         		resultData.message = "Students added successfully";
+            	}
                
             } catch (Exception e) {
             	resultData.status = false;

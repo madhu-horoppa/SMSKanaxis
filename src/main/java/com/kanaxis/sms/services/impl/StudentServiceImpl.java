@@ -15,8 +15,8 @@ public class StudentServiceImpl implements StudentService{
 	StudentDao studentDao;
 
 	@Override
-	public ResultData addStudents(Vector vector) {
-		return studentDao.addStudents(vector);
+	public ResultData uploadStudents(Vector vector) {
+		return studentDao.uploadStudents(vector);
 	}
 
 	@Override

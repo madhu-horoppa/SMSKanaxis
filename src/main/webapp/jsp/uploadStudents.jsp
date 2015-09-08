@@ -8,7 +8,7 @@
 </head>
 <body>
 <form method="POST" enctype="multipart/form-data"
-		action="http://localhost:8080/SchoolManagementSystem/sms/addStudents">
+		action="http://localhost:8080/SchoolManagementSystem/sms/uploadStudents">
 		File to upload: <input type="file" name="file"><br />
 		 
 		 <input type="submit"

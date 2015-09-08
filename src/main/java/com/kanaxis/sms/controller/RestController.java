@@ -562,9 +562,9 @@ public class RestController {
 	 * @param password
 	 * @return
 	 */
-	@RequestMapping(value = "/addStudents", method = RequestMethod.POST)
+	@RequestMapping(value = "/uploadStudents", method = RequestMethod.POST)
 	public @ResponseBody
-	Map addStudents(@FormParam("file") MultipartFile file) {
+	Map uploadStudents(@FormParam("file") MultipartFile file) {
 		
 		ResultData resultData = new ResultData();
 		Map mapData = new HashMap();
@@ -582,7 +582,6 @@ public class RestController {
 	                while(rowIter.hasNext()){
 	                    XSSFRow myRow = (XSSFRow) rowIter.next();
 	                    Iterator cellIter = myRow.cellIterator();
-	                    //Vector cellStoreVector=new Vector();
 	                    List list = new ArrayList();
 	                    while(cellIter.hasNext()){
 	                        XSSFCell myCell = (XSSFCell) cellIter.next();
@@ -591,7 +590,7 @@ public class RestController {
 	                    cellVectorHolder.addElement(list);
 	                }
 	            	
-	               resultData = studentService.addStudents(cellVectorHolder);
+	               resultData = studentService.uploadStudents(cellVectorHolder);
 	                mapData.put("status", resultData.status);
 	                mapData.put("message", resultData.message);
 	            } catch (Exception e) {
@@ -616,8 +615,7 @@ public class RestController {
 	Map getAllStudents(@QueryParam("class_id") String class_id, @QueryParam("section_id") String section_id) {
 		
 		ResultData resultData = new ResultData();
-		Map mapData = new HashMap();
-		
+		Map mapData = new HashMap();		
 			
 	            try { 	            	
 	            	
@@ -648,8 +646,7 @@ public class RestController {
 	Map getStudentDetails(@QueryParam("student_id") String student_id) {
 		
 		ResultData resultData = new ResultData();
-		Map mapData = new HashMap();
-		
+		Map mapData = new HashMap();		
 			
 	            try { 	            	
 	            	
