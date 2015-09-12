@@ -8,6 +8,7 @@ import com.kanaxis.sms.dao.AdmissionDao;
 import com.kanaxis.sms.dao.StudentDao;
 import com.kanaxis.sms.services.StudentService;
 import com.kanaxis.sms.util.ResultData;
+import com.kanaxis.sms.util.Students;
 
 public class StudentServiceImpl implements StudentService{
 	
@@ -29,5 +30,7 @@ public class StudentServiceImpl implements StudentService{
 		// TODO Auto-generated method stub
 		return studentDao.getStudentDetails(student_id);
 	}
+
+	
 
 }

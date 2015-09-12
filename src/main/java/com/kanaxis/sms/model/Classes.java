@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 6, 2015 11:22:28 AM by Hibernate Tools 4.0.0
+// Generated Sep 10, 2015 9:11:52 PM by Hibernate Tools 4.0.0
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,11 +18,13 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "classes", catalog = "sms")
+
 public class Classes implements java.io.Serializable {
 
 	private Integer id;
 	private String className;
 	private Set<Timetable> timetables = new HashSet<Timetable>(0);
+	private Set<Examschedule> examschedules = new HashSet<Examschedule>(0);
 	private Set<Subject> subjects = new HashSet<Subject>(0);
 	private Set<Student> students = new HashSet<Student>(0);
 	private Set<TransactionReport> transactionReports = new HashSet<TransactionReport>(
@@ -35,11 +37,13 @@ public class Classes implements java.io.Serializable {
 	}
 
 	public Classes(String className, Set<Timetable> timetables,
-			Set<Subject> subjects, Set<Student> students,
-			Set<TransactionReport> transactionReports, Set<Section> sections,
+			Set<Examschedule> examschedules, Set<Subject> subjects,
+			Set<Student> students, Set<TransactionReport> transactionReports,
+			Set<Section> sections,
 			Set<ClassSubjectTeacherMapping> classSubjectTeacherMappings) {
 		this.className = className;
 		this.timetables = timetables;
+		this.examschedules = examschedules;
 		this.subjects = subjects;
 		this.students = students;
 		this.transactionReports = transactionReports;
@@ -74,6 +78,15 @@ public class Classes implements java.io.Serializable {
 
 	public void setTimetables(Set<Timetable> timetables) {
 		this.timetables = timetables;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "classes")
+	public Set<Examschedule> getExamschedules() {
+		return this.examschedules;
+	}
+
+	public void setExamschedules(Set<Examschedule> examschedules) {
+		this.examschedules = examschedules;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "classes")

@@ -120,10 +120,16 @@ public class StudentDaoImpl implements StudentDao{
             
 
             try {            	
-            	
             	student = new Student();
-            	student = (Student) session.get(Student.class, new Integer(rollNumber1[0]));
-            	if(student!=null){
+            	//student = (Student) session.get(Student.class, new Integer(rollNumber1[0]));
+            	query = session.createSQLQuery("select * from student where roll_number=:rollNumber and classes_id in (select id from classes where class_name=:className) and"
+            			+ " section_id in (select id from section where section_name=:sectionName and classes_id=classes_id)");
+            	query.setParameter("className", classes);
+            	query.setParameter("sectionName", section);
+            	query.setParameter("rollNumber", rollNumber1[0]);
+            	List<Student> stList = query.list();
+            	
+            	if(stList==null){
             	student.setFirstName(firstName);
             	student.setLastName(lastName);
             	student.setRollNumber(Integer.parseInt(rollNumber1[0]));
@@ -174,12 +180,20 @@ public class StudentDaoImpl implements StudentDao{
             	student.setClasses(classes1);
             	student.setSection(section1);
             	
-            	session.save(student);        		
+            	session.save(student); 
+            	resultData.listData = null;
         		resultData.status = true;
         		resultData.message = "Students added successfully";
+            	}else{
+            		tx.rollback();
+            		resultData.listData = stList;
+            		resultData.status = false;
+            		resultData.message = "data is duplicated please check";
+            		break;
             	}
                
             } catch (Exception e) {
+            	resultData.listData = null;
             	resultData.status = false;
         		resultData.message = "Some thing went wrong please contact your admin";
             } 
@@ -279,6 +293,7 @@ public class StudentDaoImpl implements StudentDao{
 		try{
 			
 			Student student = (Student) session.get(Student.class, new Integer(Integer.parseInt(student_id)));
+			if(student!=null){
 			students.setId(student.getId());
 			students.setFirstName(student.getFirstName());
 			students.setLastName(student.getLastName());
@@ -320,6 +335,11 @@ public class StudentDaoImpl implements StudentDao{
 			resultData.object = students;
 			resultData.status = true;
 			resultData.message = "Student data found";
+			}else{
+				resultData.object = null;
+				resultData.status = false;
+				resultData.message = "Student data not found";
+			}
 			
 		}catch(Exception e){
 			resultData.object = null;
@@ -328,5 +348,7 @@ public class StudentDaoImpl implements StudentDao{
 		}
 		return resultData;
 	}
+
+	
 
 }

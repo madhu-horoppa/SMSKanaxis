@@ -39,6 +39,7 @@ public class NotificationDaoImpl implements NotificationDao{
 		int classId = 0;
 		int sectionId = 0;
 		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		ResultData resultData = new ResultData();
 		Notifications notification = null;
 		Calendar  cal = null;
@@ -138,7 +139,7 @@ public class NotificationDaoImpl implements NotificationDao{
 			
 		}
 		
-		tx = session.beginTransaction();
+		
 		session.save(notification);
 		tx.commit();
 		session.close();

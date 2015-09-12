@@ -21,6 +21,8 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -36,12 +38,15 @@ import com.kanaxis.sms.model.Employee;
 import com.kanaxis.sms.model.Status;
 import com.kanaxis.sms.services.AdmissionService;
 import com.kanaxis.sms.services.DataServices;
+import com.kanaxis.sms.services.ExamScheduleService;
 import com.kanaxis.sms.services.LoginService;
 import com.kanaxis.sms.services.NotificationService;
 import com.kanaxis.sms.services.StudentService;
 import com.kanaxis.sms.services.TeacherService;
 import com.kanaxis.sms.services.TimeTableService;
+import com.kanaxis.sms.util.ExamSchedule;
 import com.kanaxis.sms.util.ResultData;
+import com.kanaxis.sms.util.Students;
 import com.kanaxis.sms.util.UserDetails;
 
 @Controller
@@ -62,6 +67,9 @@ public class RestController {
 	NotificationService notificationService;
 	@Autowired
 	StudentService studentService;
+	
+	@Autowired
+	ExamScheduleService examScheduleService;
 	
 	
 
@@ -591,6 +599,7 @@ public class RestController {
 	                }
 	            	
 	               resultData = studentService.uploadStudents(cellVectorHolder);
+	               mapData.put("duplicateList", resultData.listData);
 	                mapData.put("status", resultData.status);
 	                mapData.put("message", resultData.message);
 	            } catch (Exception e) {
@@ -663,6 +672,32 @@ public class RestController {
 		
 		return mapData;
 		
+
+	}
+	
+	/**
+	 * T add exam schedule
+	 * @param examDetails
+	 * @return
+	 */
+	@RequestMapping(value = "/addExamSchedule", method = RequestMethod.POST)
+	public @ResponseBody Map addExamSchedule(@RequestBody String examDetails) {
+
+		ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+
+		try {
+
+			resultData = examScheduleService.addExamSchedule(examDetails);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		} catch (Exception e) {
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+		}
+
+		return mapData;
 
 	}
 	

@@ -30,7 +30,8 @@
 				<value>com.kanaxis.sms.model.ClassSubjectTeacherMapping</value>
 				<value>com.kanaxis.sms.model.Days</value>
 				<value>com.kanaxis.sms.model.Employee</value>
-				<value>com.kanaxis.sms.model.Exams</value>
+				<value>com.kanaxis.sms.model.Examtype</value>
+				<value>com.kanaxis.sms.model.Examschedule</value>
 				<value>com.kanaxis.sms.model.MarksTable</value>
 				<value>com.kanaxis.sms.model.Messagetype</value>
 				<value>com.kanaxis.sms.model.MonthlywiseAttendance</value>
@@ -52,8 +53,9 @@
 		</property>
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
 			</props>
 		</property>
 	</bean>
@@ -82,5 +84,7 @@
 	<bean id="notificationService" class="com.kanaxis.sms.services.impl.NotificationServiceImpl"></bean>
 	<bean id="studentDao" class="com.kanaxis.sms.dao.impl.StudentDaoImpl"></bean>
 	<bean id="studentService" class="com.kanaxis.sms.services.impl.StudentServiceImpl"></bean>
+	<bean id="examScheduleDao" class="com.kanaxis.sms.dao.impl.ExamScheduleDaoImpl"></bean>
+	<bean id="examScheduleService" class="com.kanaxis.sms.services.impl.ExamScheduleServiceImpl"></bean>
 	
 </beans>
