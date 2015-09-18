@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 10, 2015 9:11:52 PM by Hibernate Tools 4.0.0
+// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -30,12 +30,16 @@ public class User implements java.io.Serializable {
 	private Integer stId;
 	private Integer teacherId;
 	private Date createdDate;
+	private Boolean status;
+	private Integer classId;
+	private Integer sectionId;
 
 	public User() {
 	}
 
 	public User(Role role, String userName, String password, String name,
-			Integer stId, Integer teacherId, Date createdDate) {
+			Integer stId, Integer teacherId, Date createdDate, Boolean status,
+			Integer classId, Integer sectionId) {
 		this.role = role;
 		this.userName = userName;
 		this.password = password;
@@ -43,6 +47,9 @@ public class User implements java.io.Serializable {
 		this.stId = stId;
 		this.teacherId = teacherId;
 		this.createdDate = createdDate;
+		this.status = status;
+		this.classId = classId;
+		this.sectionId = sectionId;
 	}
 
 	@Id
@@ -111,14 +118,41 @@ public class User implements java.io.Serializable {
 		this.teacherId = teacherId;
 	}
 
-	@Temporal(TemporalType.DATE)
-	@Column(name = "createdDate", length = 10)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "createdDate", length = 19)
 	public Date getCreatedDate() {
 		return this.createdDate;
 	}
 
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	@Column(name = "status")
+	public Boolean getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	@Column(name = "class_id")
+	public Integer getClassId() {
+		return this.classId;
+	}
+
+	public void setClassId(Integer classId) {
+		this.classId = classId;
+	}
+
+	@Column(name = "section_id")
+	public Integer getSectionId() {
+		return this.sectionId;
+	}
+
+	public void setSectionId(Integer sectionId) {
+		this.sectionId = sectionId;
 	}
 
 }

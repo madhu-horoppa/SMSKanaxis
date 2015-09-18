@@ -16,4 +16,12 @@ public class ExamScheduleServiceImpl implements ExamScheduleService{
 		return examScheduleDao.addExamSchedule(examDetails);
 	}
 
+	@Override
+	public ResultData viewAllExamSchedules(String class_id, String examType_id) {
+		// TODO Auto-generated method stub
+		return examScheduleDao.viewAllExamSchedules(class_id, examType_id);
+	}
+
+	
+
 }

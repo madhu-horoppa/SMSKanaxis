@@ -65,6 +65,5 @@
 			<attribute name="owner.project.facets" value="jpt.jpa"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/user/Desktop/eclipse/mysql-connector-java-5.1.17-bin.jar.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

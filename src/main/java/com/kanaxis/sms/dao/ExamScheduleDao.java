@@ -6,4 +6,7 @@ public interface ExamScheduleDao {
 
 	ResultData addExamSchedule(String examDetails);
 
+	ResultData viewAllExamSchedules(String class_id, String examType_id);
+
+
 }

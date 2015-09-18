@@ -1,9 +1,11 @@
 package com.kanaxis.sms.dao.impl;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -74,6 +76,13 @@ public class StudentDaoImpl implements StudentDao{
 		Calendar cal = null;
 		String secondary = "";
 		String secondary1="";
+		
+		String sqlQuery = "INSERT INTO student(first_name,last_name,roll_number,date_of_birth,gender,blood_group,relegion,cast_category,"
+				+ "subcast,mother_tongue,local_address,city,state,pincode,perm_address,perm_city,perm_state,"
+				+ "perm_pincode,mother_full_name,mother_occupation,mother_education,father_full_name,father_occupation,"
+				+ "total_income,primary_contact_number,secondary_contact_number,email,joined_date,created_date,"
+				+ "classes_id,section_id,father_education,physical_disability,parent_as_guardian) VALUES ";
+
 		for(Iterator iterator = dataHolder.iterator();iterator.hasNext();) {
             List list = (List) iterator.next();
             firstName = list.get(0).toString();
@@ -127,10 +136,10 @@ public class StudentDaoImpl implements StudentDao{
             	query.setParameter("className", classes);
             	query.setParameter("sectionName", section);
             	query.setParameter("rollNumber", rollNumber1[0]);
-            	List<Student> stList = query.list();
+            	Student stList = (Student) query.uniqueResult();
             	
-            	if(stList==null){
-            	student.setFirstName(firstName);
+            	if(stList == null){
+            	/*student.setFirstName(firstName);
             	student.setLastName(lastName);
             	student.setRollNumber(Integer.parseInt(rollNumber1[0]));
             	DateFormat date = new SimpleDateFormat("dd-MM-yyyy");
@@ -163,10 +172,10 @@ public class StudentDaoImpl implements StudentDao{
             	student.setSecondaryContactNumber(secondary1);
             	
             	student.setEmail(email);
-            	student.setJoinedDate(date.parse(joinedDate));
+            	student.setJoinedDate(date.parse(joinedDate));*/
             	
-            	cal = Calendar.getInstance();
-            	student.setCreatedDate(cal.getTime());
+            	//cal = Calendar.getInstance();
+            	//student.setCreatedDate(cal.getTime());
             	
             	 query = session.createQuery("from Classes where className=:class_name");
             	query.setParameter("class_name", classes);
@@ -177,29 +186,68 @@ public class StudentDaoImpl implements StudentDao{
             	query.setParameter("class_id", classes1);
             	Section section1 = (Section) query.uniqueResult();
             	
-            	student.setClasses(classes1);
-            	student.setSection(section1);
+            	//student.setClasses(classes1);
+            	//student.setSection(section1);
             	
-            	session.save(student); 
-            	resultData.listData = null;
-        		resultData.status = true;
-        		resultData.message = "Students added successfully";
+            	Date date1 = new SimpleDateFormat("dd-MM-yyyy").parse(dateOfBirth);
+				java.sql.Date sqlDate = new java.sql.Date(date1.getTime());
+				
+				Date date2 = new SimpleDateFormat("dd-MM-yyyy").parse(joinedDate);
+				java.sql.Date sqlDate1 = new java.sql.Date(date2.getTime());
+				
+				java.util.Date today = new java.util.Date();
+				java.sql.Timestamp sqlTimestamp = new Timestamp(
+						today.getTime());
+            	if(iterator.hasNext()){
+            	sqlQuery = sqlQuery+"(" +"'"+firstName+"'"+","+"'"+lastName+"'"+","+rollNumber1[0]+","+"'"+sqlDate+"'"+","+"'"+gender+"'"+","+
+            	                      "'"+bloodGroup+"'"+","+"'"+relegion+"'"+","+"'"+castCategory+"'"+","+"'"+subCast+"'"+","+
+            			              "'"+motherTongue+"'"+","+"'"+localAddress+"'"+","+"'"+city+"'"+","+"'"+state+"'"+","+
+            	                      pincode1[0]+","+"'"+permAddress+"'"+","+"'"+permCity+"'"+","+"'"+permState+"'"+","+permPincode1[0]+","+"'"+motherName+"'"+
+            			              ","+"'"+motherOccupation+"'"+","+"'"+motherEducation+"'"+","+"'"+fatherName+"'"+","+"'"+fatherOccupation+"'"+","+totalIncome1[0]+","+
+            	                      "'"+primary1+"'"+","+"'"+secondary1+"'"+","+"'"+email+"'"+","+"'"+sqlDate1+"'"+","+"'"+sqlTimestamp+"'"+","+
+            			              classes1.getId()+","+section1.getId()+","+"'"+fatherEducation+"'"+","+physicalDisability+","+parentAsGuardian+"),";
             	}else{
-            		tx.rollback();
-            		resultData.listData = stList;
+            		sqlQuery = sqlQuery+"(" +"'"+firstName+"'"+","+"'"+lastName+"'"+","+rollNumber1[0]+","+"'"+sqlDate+"'"+","+"'"+gender+"'"+","+
+  	                      "'"+bloodGroup+"'"+","+"'"+relegion+"'"+","+"'"+castCategory+"'"+","+"'"+subCast+"'"+","+
+  			              "'"+motherTongue+"'"+","+"'"+localAddress+"'"+","+"'"+city+"'"+","+"'"+state+"'"+","+
+  	                      pincode1[0]+","+"'"+permAddress+"'"+","+"'"+permCity+"'"+","+"'"+permState+"'"+","+permPincode1[0]+","+"'"+motherName+"'"+
+  			              ","+"'"+motherOccupation+"'"+","+"'"+motherEducation+"'"+","+"'"+fatherName+"'"+","+"'"+fatherOccupation+"'"+","+totalIncome1[0]+","+
+  	                      "'"+primary1+"'"+","+"'"+secondary1+"'"+","+"'"+email+"'"+","+"'"+sqlDate1+"'"+","+"'"+sqlTimestamp+"'"+","+
+  			              classes1.getId()+","+section1.getId()+","+"'"+fatherEducation+"'"+","+physicalDisability+","+parentAsGuardian+");";
+            	}
+            	
+            	
+            	}else{
+            		resultData.object = stList;
             		resultData.status = false;
             		resultData.message = "data is duplicated please check";
             		break;
             	}
                
             } catch (Exception e) {
-            	resultData.listData = null;
+            	resultData.object = null;
             	resultData.status = false;
         		resultData.message = "Some thing went wrong please contact your admin";
             } 
         }
-		tx.commit();
-		session.close();
+		try{
+			
+			System.out.println(sqlQuery);
+			query = session.createSQLQuery(sqlQuery);
+			int result = query.executeUpdate();
+			tx.commit();
+			session.close();
+        	resultData.object = null;
+    		resultData.status = true;
+    		resultData.message = "Students added successfully";
+			
+		}catch(Exception e){
+			tx.rollback();
+			resultData.object = null;
+        	resultData.status = false;
+    		resultData.message = "Some thing went wrong please contact your admin";
+		}
+		
 		return resultData;
 	}
 

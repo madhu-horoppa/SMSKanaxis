@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 10, 2015 9:11:52 PM by Hibernate Tools 4.0.0
+// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -24,7 +24,6 @@ public class Examschedule implements java.io.Serializable {
 
 	private Integer id;
 	private Subject subject;
-	private Messagetype messagetype;
 	private Examtype examtype;
 	private Classes classes;
 	private Date examdate;
@@ -35,11 +34,9 @@ public class Examschedule implements java.io.Serializable {
 	public Examschedule() {
 	}
 
-	public Examschedule(Subject subject, Messagetype messagetype,
-			Examtype examtype, Classes classes, Date examdate,
-			String startTime, String endTime, Date createddate) {
+	public Examschedule(Subject subject, Examtype examtype, Classes classes,
+			Date examdate, String startTime, String endTime, Date createddate) {
 		this.subject = subject;
-		this.messagetype = messagetype;
 		this.examtype = examtype;
 		this.classes = classes;
 		this.examdate = examdate;
@@ -67,16 +64,6 @@ public class Examschedule implements java.io.Serializable {
 
 	public void setSubject(Subject subject) {
 		this.subject = subject;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "messagetype_id")
-	public Messagetype getMessagetype() {
-		return this.messagetype;
-	}
-
-	public void setMessagetype(Messagetype messagetype) {
-		this.messagetype = messagetype;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

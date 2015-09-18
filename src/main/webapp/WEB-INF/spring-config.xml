@@ -15,7 +15,7 @@
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/sms" />
 		<property name="username" value="root" />
-		<property name="password" value="" />
+		<property name="password" value="root" />
 	</bean>
 
 	<bean id="sessionFactory"
@@ -54,8 +54,9 @@
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.jdbc.batch_versioned_data">true</prop>
 			</props>
 		</property>
 	</bean>
@@ -86,5 +87,11 @@
 	<bean id="studentService" class="com.kanaxis.sms.services.impl.StudentServiceImpl"></bean>
 	<bean id="examScheduleDao" class="com.kanaxis.sms.dao.impl.ExamScheduleDaoImpl"></bean>
 	<bean id="examScheduleService" class="com.kanaxis.sms.services.impl.ExamScheduleServiceImpl"></bean>
+	<bean id="sectionDao" class="com.kanaxis.sms.dao.impl.SectionDaoImpl"></bean>
+	<bean id="sectionService" class="com.kanaxis.sms.services.impl.SectionServiceImpl"></bean>
+	<bean id="SubjectDao" class="com.kanaxis.sms.dao.impl.SubjectDaoImpl"></bean>
+	<bean id="SubjectService" class="com.kanaxis.sms.services.impl.SubjectServiceImpl"></bean>
+	<bean id="classSubjectTeacherMappingDao" class="com.kanaxis.sms.dao.impl.ClassSubjectTeacherMappingDaoImpl"></bean>
+	<bean id="classSubjectTeacherMappingService" class="com.kanaxis.sms.services.impl.ClassSubjectTeacherMappingServiceImpl"></bean>
 	
 </beans>

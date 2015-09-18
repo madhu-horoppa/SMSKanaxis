@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 10, 2015 9:11:52 PM by Hibernate Tools 4.0.0
+// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,16 +22,13 @@ public class Messagetype implements java.io.Serializable {
 
 	private Integer id;
 	private String messageType;
-	private Set<Examschedule> examschedules = new HashSet<Examschedule>(0);
 	private Set<Notifications> notificationses = new HashSet<Notifications>(0);
 
 	public Messagetype() {
 	}
 
-	public Messagetype(String messageType, Set<Examschedule> examschedules,
-			Set<Notifications> notificationses) {
+	public Messagetype(String messageType, Set<Notifications> notificationses) {
 		this.messageType = messageType;
-		this.examschedules = examschedules;
 		this.notificationses = notificationses;
 	}
 
@@ -53,15 +50,6 @@ public class Messagetype implements java.io.Serializable {
 
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
-	}
-
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "messagetype")
-	public Set<Examschedule> getExamschedules() {
-		return this.examschedules;
-	}
-
-	public void setExamschedules(Set<Examschedule> examschedules) {
-		this.examschedules = examschedules;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "messagetype")

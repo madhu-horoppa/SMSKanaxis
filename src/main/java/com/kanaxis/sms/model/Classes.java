@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 10, 2015 9:11:52 PM by Hibernate Tools 4.0.0
+// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +18,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "classes", catalog = "sms")
-
 public class Classes implements java.io.Serializable {
 
 	private Integer id;
