@@ -1,8 +1,10 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +13,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,13 +36,15 @@ public class User implements java.io.Serializable {
 	private Boolean status;
 	private Integer classId;
 	private Integer sectionId;
+	private Set<Notifications> notificationses = new HashSet<Notifications>(0);
 
 	public User() {
 	}
 
 	public User(Role role, String userName, String password, String name,
 			Integer stId, Integer teacherId, Date createdDate, Boolean status,
-			Integer classId, Integer sectionId) {
+			Integer classId, Integer sectionId,
+			Set<Notifications> notificationses) {
 		this.role = role;
 		this.userName = userName;
 		this.password = password;
@@ -50,6 +55,7 @@ public class User implements java.io.Serializable {
 		this.status = status;
 		this.classId = classId;
 		this.sectionId = sectionId;
+		this.notificationses = notificationses;
 	}
 
 	@Id
@@ -153,6 +159,15 @@ public class User implements java.io.Serializable {
 
 	public void setSectionId(Integer sectionId) {
 		this.sectionId = sectionId;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	public Set<Notifications> getNotificationses() {
+		return this.notificationses;
+	}
+
+	public void setNotificationses(Set<Notifications> notificationses) {
+		this.notificationses = notificationses;
 	}
 
 }

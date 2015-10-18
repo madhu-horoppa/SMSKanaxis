@@ -25,4 +25,10 @@ public class ClassSubjectTeacherMappingServiceImpl implements ClassSubjectTeache
 		return classSubjectTeacherMappingDao.getAllClassSubjectTeacherMappings(class_id, section_id);
 	}
 
+	@Override
+	public ResultData updateClassSubjectTeacherMapping(String class_id,
+			String subject_id, String teacher_id, String section_id, String mapping_id) {
+		return classSubjectTeacherMappingDao.updateClassSubjectTeacherMapping(class_id, subject_id, teacher_id, section_id, mapping_id);
+	}
+
 }

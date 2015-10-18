@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -24,7 +24,7 @@ public class Notifications implements java.io.Serializable {
 
 	private Integer id;
 	private Messagetype messagetype;
-	private Integer fromId;
+	private User user;
 	private String message;
 	private Boolean status;
 	private String fromName;
@@ -37,11 +37,11 @@ public class Notifications implements java.io.Serializable {
 	public Notifications() {
 	}
 
-	public Notifications(Messagetype messagetype, Integer fromId,
-			String message, Boolean status, String fromName, Integer toId,
-			String toName, Integer classId, Integer sectionId, Date createdDate) {
+	public Notifications(Messagetype messagetype, User user, String message,
+			Boolean status, String fromName, Integer toId, String toName,
+			Integer classId, Integer sectionId, Date createdDate) {
 		this.messagetype = messagetype;
-		this.fromId = fromId;
+		this.user = user;
 		this.message = message;
 		this.status = status;
 		this.fromName = fromName;
@@ -73,13 +73,14 @@ public class Notifications implements java.io.Serializable {
 		this.messagetype = messagetype;
 	}
 
-	@Column(name = "from_id")
-	public Integer getFromId() {
-		return this.fromId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "from_id")
+	public User getUser() {
+		return this.user;
 	}
 
-	public void setFromId(Integer fromId) {
-		this.fromId = fromId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	@Column(name = "message", length = 65535)

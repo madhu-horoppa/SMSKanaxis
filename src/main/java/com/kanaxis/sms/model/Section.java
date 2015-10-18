@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,26 +25,34 @@ public class Section implements java.io.Serializable {
 	private Integer id;
 	private Classes classes;
 	private String sectionName;
+	private Set<TotalMarks> totalMarkses = new HashSet<TotalMarks>(0);
 	private Set<Timetable> timetables = new HashSet<Timetable>(0);
 	private Set<Student> students = new HashSet<Student>(0);
 	private Set<TransactionReport> transactionReports = new HashSet<TransactionReport>(
 			0);
+	private Set<MarksTable> marksTables = new HashSet<MarksTable>(0);
 	private Set<ClassSubjectTeacherMapping> classSubjectTeacherMappings = new HashSet<ClassSubjectTeacherMapping>(
 			0);
+	private Set<Attendance> attendances = new HashSet<Attendance>(0);
 
 	public Section() {
 	}
 
 	public Section(Classes classes, String sectionName,
-			Set<Timetable> timetables, Set<Student> students,
-			Set<TransactionReport> transactionReports,
-			Set<ClassSubjectTeacherMapping> classSubjectTeacherMappings) {
+			Set<TotalMarks> totalMarkses, Set<Timetable> timetables,
+			Set<Student> students, Set<TransactionReport> transactionReports,
+			Set<MarksTable> marksTables,
+			Set<ClassSubjectTeacherMapping> classSubjectTeacherMappings,
+			Set<Attendance> attendances) {
 		this.classes = classes;
 		this.sectionName = sectionName;
+		this.totalMarkses = totalMarkses;
 		this.timetables = timetables;
 		this.students = students;
 		this.transactionReports = transactionReports;
+		this.marksTables = marksTables;
 		this.classSubjectTeacherMappings = classSubjectTeacherMappings;
+		this.attendances = attendances;
 	}
 
 	@Id
@@ -78,6 +86,15 @@ public class Section implements java.io.Serializable {
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
+	public Set<TotalMarks> getTotalMarkses() {
+		return this.totalMarkses;
+	}
+
+	public void setTotalMarkses(Set<TotalMarks> totalMarkses) {
+		this.totalMarkses = totalMarkses;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
 	public Set<Timetable> getTimetables() {
 		return this.timetables;
 	}
@@ -105,6 +122,15 @@ public class Section implements java.io.Serializable {
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
+	public Set<MarksTable> getMarksTables() {
+		return this.marksTables;
+	}
+
+	public void setMarksTables(Set<MarksTable> marksTables) {
+		this.marksTables = marksTables;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
 	public Set<ClassSubjectTeacherMapping> getClassSubjectTeacherMappings() {
 		return this.classSubjectTeacherMappings;
 	}
@@ -112,6 +138,15 @@ public class Section implements java.io.Serializable {
 	public void setClassSubjectTeacherMappings(
 			Set<ClassSubjectTeacherMapping> classSubjectTeacherMappings) {
 		this.classSubjectTeacherMappings = classSubjectTeacherMappings;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
+	public Set<Attendance> getAttendances() {
+		return this.attendances;
+	}
+
+	public void setAttendances(Set<Attendance> attendances) {
+		this.attendances = attendances;
 	}
 
 }

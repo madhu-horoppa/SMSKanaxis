@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -23,8 +23,11 @@ import javax.persistence.TemporalType;
 public class MarksTable implements java.io.Serializable {
 
 	private Integer id;
+	private Section section;
 	private Student student;
 	private Subject subject;
+	private Examtype examtype;
+	private Classes classes;
 	private Double marksObtained;
 	private Double maxMarks;
 	private Integer subjectWiseRank;
@@ -33,10 +36,14 @@ public class MarksTable implements java.io.Serializable {
 	public MarksTable() {
 	}
 
-	public MarksTable(Student student, Subject subject, Double marksObtained,
+	public MarksTable(Section section, Student student, Subject subject,
+			Examtype examtype, Classes classes, Double marksObtained,
 			Double maxMarks, Integer subjectWiseRank, Date dateOfExam) {
+		this.section = section;
 		this.student = student;
 		this.subject = subject;
+		this.examtype = examtype;
+		this.classes = classes;
 		this.marksObtained = marksObtained;
 		this.maxMarks = maxMarks;
 		this.subjectWiseRank = subjectWiseRank;
@@ -52,6 +59,16 @@ public class MarksTable implements java.io.Serializable {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "section_id")
+	public Section getSection() {
+		return this.section;
+	}
+
+	public void setSection(Section section) {
+		this.section = section;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -72,6 +89,26 @@ public class MarksTable implements java.io.Serializable {
 
 	public void setSubject(Subject subject) {
 		this.subject = subject;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "exam_type")
+	public Examtype getExamtype() {
+		return this.examtype;
+	}
+
+	public void setExamtype(Examtype examtype) {
+		this.examtype = examtype;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "class_id")
+	public Classes getClasses() {
+		return this.classes;
+	}
+
+	public void setClasses(Classes classes) {
+		this.classes = classes;
 	}
 
 	@Column(name = "marks_obtained", precision = 22, scale = 0)

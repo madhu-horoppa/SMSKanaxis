@@ -6,7 +6,7 @@ import com.kanaxis.sms.util.UserDetails;
 
 public interface LoginDao {
 	
-	public UserDetails login(String userName, String password) throws Exception;
+	public ResultData login(String userName, String password) throws Exception;
 
 	public ResultData addParentCredentials(String class_id, String section_id,
 			String student_id, String userName);

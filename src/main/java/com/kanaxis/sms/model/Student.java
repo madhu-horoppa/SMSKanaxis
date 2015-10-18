@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import java.util.HashSet;
@@ -58,8 +58,8 @@ public class Student implements java.io.Serializable {
 	private Date joinedDate;
 	private Date createdDate;
 	private String fatherEducation;
-	private Boolean physicalDisability;
-	private Boolean parentAsGuardian;
+	private Byte physicalDisability;
+	private Byte parentAsGuardian;
 	private Set<WeekwiseAttendance> weekwiseAttendances = new HashSet<WeekwiseAttendance>(
 			0);
 	private Set<MarksTable> marksTables = new HashSet<MarksTable>(0);
@@ -82,8 +82,8 @@ public class Student implements java.io.Serializable {
 			String fatherOccupation, Double totalIncome,
 			String primaryContactNumber, String secondaryContactNumber,
 			String email, Date joinedDate, Date createdDate,
-			String fatherEducation, Boolean physicalDisability,
-			Boolean parentAsGuardian, Set<WeekwiseAttendance> weekwiseAttendances,
+			String fatherEducation, Byte physicalDisability,
+			Byte parentAsGuardian, Set<WeekwiseAttendance> weekwiseAttendances,
 			Set<MarksTable> marksTables, Set<Rank> ranks,
 			Set<Attendance> attendances,
 			Set<MonthlywiseAttendance> monthlywiseAttendances) {
@@ -433,20 +433,20 @@ public class Student implements java.io.Serializable {
 	}
 
 	@Column(name = "physical_disability")
-	public Boolean getPhysicalDisability() {
+	public Byte getPhysicalDisability() {
 		return this.physicalDisability;
 	}
 
-	public void setPhysicalDisability(Boolean physicalDisability) {
+	public void setPhysicalDisability(Byte physicalDisability) {
 		this.physicalDisability = physicalDisability;
 	}
 
 	@Column(name = "parent_as_guardian")
-	public Boolean getParentAsGuardian() {
+	public Byte getParentAsGuardian() {
 		return this.parentAsGuardian;
 	}
 
-	public void setParentAsGuardian(Boolean parentAsGuardian) {
+	public void setParentAsGuardian(Byte parentAsGuardian) {
 		this.parentAsGuardian = parentAsGuardian;
 	}
 

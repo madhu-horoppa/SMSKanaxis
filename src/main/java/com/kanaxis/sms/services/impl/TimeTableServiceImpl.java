@@ -18,4 +18,10 @@ public class TimeTableServiceImpl implements TimeTableService{
 		return timeTableDao.getTimeTable(classId, sectionId);
 	}
 
+	@Override
+	public ResultData addTimeTable(String timetableJson) {
+		// TODO Auto-generated method stub
+		return timeTableDao.addTimeTable(timetableJson);
+	}
+
 }

@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -28,17 +28,19 @@ public class TransactionReport implements java.io.Serializable {
 	private Classes classes;
 	private String topic;
 	private Date date;
+	private Date createdDate;
 
 	public TransactionReport() {
 	}
 
 	public TransactionReport(Section section, Subject subject, Classes classes,
-			String topic, Date date) {
+			String topic, Date date, Date createdDate) {
 		this.section = section;
 		this.subject = subject;
 		this.classes = classes;
 		this.topic = topic;
 		this.date = date;
+		this.createdDate = createdDate;
 	}
 
 	@Id
@@ -99,6 +101,16 @@ public class TransactionReport implements java.io.Serializable {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "createdDate", length = 19)
+	public Date getCreatedDate() {
+		return this.createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 
 }

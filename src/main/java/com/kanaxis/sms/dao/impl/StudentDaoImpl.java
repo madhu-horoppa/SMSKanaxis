@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.hibernate.Query;
@@ -33,11 +34,10 @@ public class StudentDaoImpl implements StudentDao{
 	Transaction tx = null;
 
 	@Override
-	public ResultData uploadStudents(Vector dataHolder) {
+	public ResultData uploadStudents(Vector<Set> dataHolder) {
 		
 		session = sessionFactory.openSession();
 		tx = session.beginTransaction();
-		Student student = null;
 		ResultData resultData= new ResultData();
 		String firstName="";
 		String lastName="";
@@ -84,98 +84,54 @@ public class StudentDaoImpl implements StudentDao{
 				+ "classes_id,section_id,father_education,physical_disability,parent_as_guardian) VALUES ";
 
 		for(Iterator iterator = dataHolder.iterator();iterator.hasNext();) {
-            List list = (List) iterator.next();
-            firstName = list.get(0).toString();
-            lastName = list.get(1).toString();
-            rollNumber = list.get(2).toString();
+            Set set = (Set) iterator.next();
+            List list = new ArrayList(set);
+            for(int i=0;i<list.size();i++){
+            Students students = (Students)list.get(i);
+            firstName = students.getFirstName();
+            lastName = students.getLastName();
+            rollNumber = students.getRollNumber();
             String rollNumber1[] = rollNumber.split("\\.");
-            dateOfBirth = list.get(3).toString();            
-            gender = list.get(4).toString();
-            bloodGroup = list.get(5).toString();
-            relegion = list.get(6).toString();
-            castCategory = list.get(7).toString();
-            subCast = list.get(8).toString();
-            physicalDisability = list.get(9).toString();
-            motherTongue = list.get(10).toString();
-            localAddress = list.get(11).toString();
-            city = list.get(12).toString();
-            state = list.get(13).toString();
-            pincode = list.get(14).toString();
+            dateOfBirth = students.getDateOfBirth();            
+            gender = students.getGender();
+            bloodGroup = students.getBloodGroup();
+            relegion = students.getRelegion();
+            castCategory = students.getCastCategory();
+            subCast = students.getSubcast();
+            physicalDisability = students.getPhysicalDisability();
+            motherTongue = students.getMotherTongue();
+            localAddress = students.getLocalAddress();
+            city = students.getCity();
+            state = students.getState();
+            pincode = students.getPincode();
             String pincode1[] = pincode.split("\\.");
-            permAddress = list.get(15).toString();
-            permCity = list.get(16).toString();
-            permState = list.get(17).toString();
-            permPincode = list.get(18).toString();
+            permAddress = students.getPermAddress();
+            permCity = students.getPermCity();
+            permState = students.getPermState();
+            permPincode = students.getPermPincode();
             String permPincode1[] = permPincode.split("\\.");
-            motherName = list.get(19).toString();
-            motherOccupation = list.get(20).toString();
-            motherEducation = list.get(21).toString();
-            fatherName = list.get(22).toString();
-            fatherOccupation = list.get(23).toString();
-            fatherEducation = list.get(24).toString();
-            totalIncome = list.get(25).toString();
+            motherName = students.getMotherFullName();
+            motherOccupation = students.getMotherOccupation();
+            motherEducation = students.getMotherEducation();
+            fatherName = students.getFatherFullName();
+            fatherOccupation = students.getFatherOccupation();
+            fatherEducation = students.getFatherEducation();
+            totalIncome = students.getTotalIncome();
             String totalIncome1[] = totalIncome.split("\\.");
-            parentAsGuardian = list.get(26).toString();
-            primaryContactNumber = list.get(27).toString();
+            parentAsGuardian = students.getParentAsGuardian();
+            primaryContactNumber = students.getPrimaryContactNumber();
             String primary = primaryContactNumber.replaceAll("[.E]*","");
             String primary1 = primary.substring(0,primary.length()-1);
-            secondaryContactNumber = list.get(28).toString();
+            secondaryContactNumber = students.getSecondaryContactNumber();
              secondary = secondaryContactNumber.replaceAll("[.E]*","");
              secondary1 = secondary.substring(0,secondary.length()-1);
-            email = list.get(29).toString();
-            joinedDate = list.get(30).toString();
-            classes = list.get(31).toString();
-            section = list.get(32).toString();            
+            email = students.getEmail();
+            joinedDate = students.getJoinedDate();
+            classes = students.getClasses();
+            section = students.getSection();            
             
 
             try {            	
-            	student = new Student();
-            	//student = (Student) session.get(Student.class, new Integer(rollNumber1[0]));
-            	query = session.createSQLQuery("select * from student where roll_number=:rollNumber and classes_id in (select id from classes where class_name=:className) and"
-            			+ " section_id in (select id from section where section_name=:sectionName and classes_id=classes_id)");
-            	query.setParameter("className", classes);
-            	query.setParameter("sectionName", section);
-            	query.setParameter("rollNumber", rollNumber1[0]);
-            	Student stList = (Student) query.uniqueResult();
-            	
-            	if(stList == null){
-            	/*student.setFirstName(firstName);
-            	student.setLastName(lastName);
-            	student.setRollNumber(Integer.parseInt(rollNumber1[0]));
-            	DateFormat date = new SimpleDateFormat("dd-MM-yyyy");
-            	student.setDateOfBirth(date.parse(dateOfBirth));
-            	student.setGender(gender);
-            	student.setBloodGroup(bloodGroup);
-            	student.setRelegion(relegion);
-            	student.setCastCategory(castCategory);
-            	student.setSubcast(subCast);
-            	student.setPhysicalDisability(Boolean.parseBoolean(physicalDisability));
-            	student.setMotherTongue(motherTongue);
-            	student.setLocalAddress(localAddress);
-            	student.setCity(city);
-            	student.setState(state);
-            	student.setPincode(Double.parseDouble(pincode1[0]));
-            	student.setPermAddress(permAddress);
-            	student.setPermCity(permCity);
-            	student.setPermState(permState);
-            	student.setPermPincode(Double.parseDouble(permPincode1[0]));
-            	student.setMotherFullName(motherName);
-            	student.setMotherOccupation(motherOccupation);
-            	student.setMotherEducation(motherEducation);
-            	student.setFatherFullName(fatherName);
-            	student.setFatherOccupation(fatherOccupation);
-            	student.setFatherEducation(fatherEducation);
-            	student.setTotalIncome(Double.parseDouble(totalIncome1[0]));
-            	student.setParentAsGuardian(Boolean.parseBoolean(parentAsGuardian));
-            	student.setPrimaryContactNumber(primary1);
-            	
-            	student.setSecondaryContactNumber(secondary1);
-            	
-            	student.setEmail(email);
-            	student.setJoinedDate(date.parse(joinedDate));*/
-            	
-            	//cal = Calendar.getInstance();
-            	//student.setCreatedDate(cal.getTime());
             	
             	 query = session.createQuery("from Classes where className=:class_name");
             	query.setParameter("class_name", classes);
@@ -186,8 +142,6 @@ public class StudentDaoImpl implements StudentDao{
             	query.setParameter("class_id", classes1);
             	Section section1 = (Section) query.uniqueResult();
             	
-            	//student.setClasses(classes1);
-            	//student.setSection(section1);
             	
             	Date date1 = new SimpleDateFormat("dd-MM-yyyy").parse(dateOfBirth);
 				java.sql.Date sqlDate = new java.sql.Date(date1.getTime());
@@ -198,15 +152,7 @@ public class StudentDaoImpl implements StudentDao{
 				java.util.Date today = new java.util.Date();
 				java.sql.Timestamp sqlTimestamp = new Timestamp(
 						today.getTime());
-            	if(iterator.hasNext()){
-            	sqlQuery = sqlQuery+"(" +"'"+firstName+"'"+","+"'"+lastName+"'"+","+rollNumber1[0]+","+"'"+sqlDate+"'"+","+"'"+gender+"'"+","+
-            	                      "'"+bloodGroup+"'"+","+"'"+relegion+"'"+","+"'"+castCategory+"'"+","+"'"+subCast+"'"+","+
-            			              "'"+motherTongue+"'"+","+"'"+localAddress+"'"+","+"'"+city+"'"+","+"'"+state+"'"+","+
-            	                      pincode1[0]+","+"'"+permAddress+"'"+","+"'"+permCity+"'"+","+"'"+permState+"'"+","+permPincode1[0]+","+"'"+motherName+"'"+
-            			              ","+"'"+motherOccupation+"'"+","+"'"+motherEducation+"'"+","+"'"+fatherName+"'"+","+"'"+fatherOccupation+"'"+","+totalIncome1[0]+","+
-            	                      "'"+primary1+"'"+","+"'"+secondary1+"'"+","+"'"+email+"'"+","+"'"+sqlDate1+"'"+","+"'"+sqlTimestamp+"'"+","+
-            			              classes1.getId()+","+section1.getId()+","+"'"+fatherEducation+"'"+","+physicalDisability+","+parentAsGuardian+"),";
-            	}else{
+            	if(i == list.size()-1){
             		sqlQuery = sqlQuery+"(" +"'"+firstName+"'"+","+"'"+lastName+"'"+","+rollNumber1[0]+","+"'"+sqlDate+"'"+","+"'"+gender+"'"+","+
   	                      "'"+bloodGroup+"'"+","+"'"+relegion+"'"+","+"'"+castCategory+"'"+","+"'"+subCast+"'"+","+
   			              "'"+motherTongue+"'"+","+"'"+localAddress+"'"+","+"'"+city+"'"+","+"'"+state+"'"+","+
@@ -214,21 +160,27 @@ public class StudentDaoImpl implements StudentDao{
   			              ","+"'"+motherOccupation+"'"+","+"'"+motherEducation+"'"+","+"'"+fatherName+"'"+","+"'"+fatherOccupation+"'"+","+totalIncome1[0]+","+
   	                      "'"+primary1+"'"+","+"'"+secondary1+"'"+","+"'"+email+"'"+","+"'"+sqlDate1+"'"+","+"'"+sqlTimestamp+"'"+","+
   			              classes1.getId()+","+section1.getId()+","+"'"+fatherEducation+"'"+","+physicalDisability+","+parentAsGuardian+");";
-            	}
-            	
-            	
             	}else{
-            		resultData.object = stList;
-            		resultData.status = false;
-            		resultData.message = "data is duplicated please check";
-            		break;
+            		sqlQuery = sqlQuery+"(" +"'"+firstName+"'"+","+"'"+lastName+"'"+","+rollNumber1[0]+","+"'"+sqlDate+"'"+","+"'"+gender+"'"+","+
+  	                      "'"+bloodGroup+"'"+","+"'"+relegion+"'"+","+"'"+castCategory+"'"+","+"'"+subCast+"'"+","+
+  			              "'"+motherTongue+"'"+","+"'"+localAddress+"'"+","+"'"+city+"'"+","+"'"+state+"'"+","+
+  	                      pincode1[0]+","+"'"+permAddress+"'"+","+"'"+permCity+"'"+","+"'"+permState+"'"+","+permPincode1[0]+","+"'"+motherName+"'"+
+  			              ","+"'"+motherOccupation+"'"+","+"'"+motherEducation+"'"+","+"'"+fatherName+"'"+","+"'"+fatherOccupation+"'"+","+totalIncome1[0]+","+
+  	                      "'"+primary1+"'"+","+"'"+secondary1+"'"+","+"'"+email+"'"+","+"'"+sqlDate1+"'"+","+"'"+sqlTimestamp+"'"+","+
+  			              classes1.getId()+","+section1.getId()+","+"'"+fatherEducation+"'"+","+physicalDisability+","+parentAsGuardian+"),";
             	}
+            	
+            	
+            	
+            	
+            	
                
             } catch (Exception e) {
-            	resultData.object = null;
+            	resultData.listData = null;
             	resultData.status = false;
         		resultData.message = "Some thing went wrong please contact your admin";
             } 
+		}
         }
 		try{
 			
@@ -237,13 +189,13 @@ public class StudentDaoImpl implements StudentDao{
 			int result = query.executeUpdate();
 			tx.commit();
 			session.close();
-        	resultData.object = null;
+        	resultData.listData = null;
     		resultData.status = true;
     		resultData.message = "Students added successfully";
 			
 		}catch(Exception e){
 			tx.rollback();
-			resultData.object = null;
+			resultData.listData = null;
         	resultData.status = false;
     		resultData.message = "Some thing went wrong please contact your admin";
 		}
@@ -278,7 +230,7 @@ public class StudentDaoImpl implements StudentDao{
 				students.setId(student.getId());
 				students.setFirstName(student.getFirstName());
 				students.setLastName(student.getLastName());
-				students.setRollNumber(student.getRollNumber());
+				students.setRollNumber(String.valueOf(student.getRollNumber()));
 				DateFormat date = new SimpleDateFormat("dd-MM-yyyy");
 				students.setDateOfBirth(date.format(student.getDateOfBirth()));
 				students.setGender(student.getGender());
@@ -286,24 +238,24 @@ public class StudentDaoImpl implements StudentDao{
 				students.setRelegion(student.getRelegion());
 				students.setCastCategory(student.getCastCategory());
 				students.setSubcast(student.getSubcast());
-				students.setPhysicalDisability(student.getPhysicalDisability());
+				students.setPhysicalDisability(String.valueOf(student.getPhysicalDisability()));
 				students.setMotherTongue(student.getMotherTongue());
 				students.setLocalAddress(student.getLocalAddress());
 				students.setCity(student.getCity());
 				students.setState(student.getState());
-				students.setPincode(student.getPincode());
+				students.setPincode(String.valueOf(student.getPincode()));
 				students.setPermAddress(student.getPermAddress());
 				students.setPermCity(student.getPermCity());
 				students.setPermState(student.getPermState());
-				students.setPermPincode(student.getPermPincode());
+				students.setPermPincode(String.valueOf(student.getPermPincode()));
 				students.setMotherFullName(student.getMotherFullName());
 				students.setMotherOccupation(student.getMotherOccupation());
 				students.setMotherEducation(student.getMotherEducation());
 				students.setFatherFullName(student.getFatherFullName());
 				students.setFatherOccupation(student.getFatherOccupation());
 				students.setFatherEducation(student.getFatherEducation());
-				students.setTotalIncome(student.getTotalIncome());
-				students.setParentAsGuardian(student.getParentAsGuardian());
+				students.setTotalIncome(String.valueOf(student.getTotalIncome()));
+				students.setParentAsGuardian(String.valueOf(student.getParentAsGuardian()));
 				students.setPrimaryContactNumber(student.getPrimaryContactNumber());
 				students.setSecondaryContactNumber(student.getSecondaryContactNumber());
 				students.setEmail(student.getEmail());
@@ -345,7 +297,7 @@ public class StudentDaoImpl implements StudentDao{
 			students.setId(student.getId());
 			students.setFirstName(student.getFirstName());
 			students.setLastName(student.getLastName());
-			students.setRollNumber(student.getRollNumber());
+			students.setRollNumber(String.valueOf(student.getRollNumber()));
 			DateFormat date = new SimpleDateFormat("dd-MM-yyyy");
 			students.setDateOfBirth(date.format(student.getDateOfBirth()));
 			students.setGender(student.getGender());
@@ -353,24 +305,24 @@ public class StudentDaoImpl implements StudentDao{
 			students.setRelegion(student.getRelegion());
 			students.setCastCategory(student.getCastCategory());
 			students.setSubcast(student.getSubcast());
-			students.setPhysicalDisability(student.getPhysicalDisability());
+			students.setPhysicalDisability(String.valueOf(student.getPhysicalDisability()));
 			students.setMotherTongue(student.getMotherTongue());
 			students.setLocalAddress(student.getLocalAddress());
 			students.setCity(student.getCity());
 			students.setState(student.getState());
-			students.setPincode(student.getPincode());
+			students.setPincode(String.valueOf(student.getPincode()));
 			students.setPermAddress(student.getPermAddress());
 			students.setPermCity(student.getPermCity());
 			students.setPermState(student.getPermState());
-			students.setPermPincode(student.getPermPincode());
+			students.setPermPincode(String.valueOf(student.getPermPincode()));
 			students.setMotherFullName(student.getMotherFullName());
 			students.setMotherOccupation(student.getMotherOccupation());
 			students.setMotherEducation(student.getMotherEducation());
 			students.setFatherFullName(student.getFatherFullName());
 			students.setFatherOccupation(student.getFatherOccupation());
 			students.setFatherEducation(student.getFatherEducation());
-			students.setTotalIncome(student.getTotalIncome());
-			students.setParentAsGuardian(student.getParentAsGuardian());
+			students.setTotalIncome(String.valueOf(student.getTotalIncome()));
+			students.setParentAsGuardian(String.valueOf(student.getParentAsGuardian()));
 			students.setPrimaryContactNumber(student.getPrimaryContactNumber());
 			students.setSecondaryContactNumber(student.getSecondaryContactNumber());
 			students.setEmail(student.getEmail());

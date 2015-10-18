@@ -5,10 +5,19 @@ public class NotifictionDetails {
 	String messageType;
 	String message;
 	String toName;
+	String studentName;
 	int rollNum;
 	String classes;
 	String Section;
 	String createdDate;
+	String teacherName;
+	
+	public String getTeacherName() {
+		return teacherName;
+	}
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
 	public String getMessageType() {
 		return messageType;
 	}
@@ -51,6 +60,15 @@ public class NotifictionDetails {
 	public void setCreatedDate(String createdDate) {
 		this.createdDate = createdDate;
 	}
+	public String getStudentName() {
+		return studentName;
+	}
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
+	}
+	
+	
+	
 	
 	
 	

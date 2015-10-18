@@ -24,5 +24,10 @@ public class SubjectServiceImpl implements SubjectService{
 		// TODO Auto-generated method stub
 		return subjectDao.getSubjectsByClass(class_id);
 	}
+	@Override
+	public ResultData updateSubjects(String class_id, String subjectName,
+			String subject_id) {
+		return subjectDao.updateSubjects(class_id, subjectName, subject_id);
+	}
 
 }

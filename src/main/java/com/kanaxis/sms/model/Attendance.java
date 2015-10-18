@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -23,17 +23,22 @@ import javax.persistence.TemporalType;
 public class Attendance implements java.io.Serializable {
 
 	private Integer id;
+	private Section section;
 	private Student student;
+	private Classes classes;
 	private Boolean status;
-	private Date dateOfExam;
+	private Date dateOfAbsent;
 
 	public Attendance() {
 	}
 
-	public Attendance(Student student, Boolean status, Date dateOfExam) {
+	public Attendance(Section section, Student student, Classes classes,
+			Boolean status, Date dateOfAbsent) {
+		this.section = section;
 		this.student = student;
+		this.classes = classes;
 		this.status = status;
-		this.dateOfExam = dateOfExam;
+		this.dateOfAbsent = dateOfAbsent;
 	}
 
 	@Id
@@ -48,6 +53,16 @@ public class Attendance implements java.io.Serializable {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "section_id")
+	public Section getSection() {
+		return this.section;
+	}
+
+	public void setSection(Section section) {
+		this.section = section;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "st_id")
 	public Student getStudent() {
 		return this.student;
@@ -55,6 +70,16 @@ public class Attendance implements java.io.Serializable {
 
 	public void setStudent(Student student) {
 		this.student = student;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "classes_id")
+	public Classes getClasses() {
+		return this.classes;
+	}
+
+	public void setClasses(Classes classes) {
+		this.classes = classes;
 	}
 
 	@Column(name = "status")
@@ -67,13 +92,13 @@ public class Attendance implements java.io.Serializable {
 	}
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "date_of_exam", length = 10)
-	public Date getDateOfExam() {
-		return this.dateOfExam;
+	@Column(name = "dateOfAbsent", length = 10)
+	public Date getDateOfAbsent() {
+		return this.dateOfAbsent;
 	}
 
-	public void setDateOfExam(Date dateOfExam) {
-		this.dateOfExam = dateOfExam;
+	public void setDateOfAbsent(Date dateOfAbsent) {
+		this.dateOfAbsent = dateOfAbsent;
 	}
 
 }

@@ -23,6 +23,7 @@ import javax.jws.soap.SOAPBinding.Use;
 import com.kanaxis.sms.dao.LoginDao;
 import com.kanaxis.sms.model.Employee;
 import com.kanaxis.sms.model.Role;
+import com.kanaxis.sms.model.Section;
 import com.kanaxis.sms.model.Student;
 import com.kanaxis.sms.model.Teachers;
 import com.kanaxis.sms.model.User;
@@ -38,11 +39,13 @@ public class LoginDaoImpl implements LoginDao{
 	Transaction tx = null;
 
 	@Override
-	public UserDetails login(String userName, String password) throws Exception {
+	public ResultData login(String userName, String password) throws Exception {
 		UserDetails userDetails = new UserDetails();
+		ResultData resultData = new ResultData();
+		session = sessionFactory.openSession();	
+		Map map = new LinkedHashMap();
 		try{
-		
-		session = sessionFactory.openSession();		
+			
 		Query query = session.createQuery("FROM User user WHERE user.userName=:userName");
 		query.setParameter("userName",userName);
 		User user = (User) query.uniqueResult();
@@ -50,21 +53,44 @@ public class LoginDaoImpl implements LoginDao{
 		byte[] valueDecoded= Base64.decodeBase64(user.getPassword().getBytes());
         String dbPassword = new String(valueDecoded);
         if(password.equals(dbPassword)){
-        	userDetails.setName(user.getName());
-        	userDetails.setRoleId(user.getRole().getId());
-        	userDetails.setMessage("user successfully logedin");
-        	userDetails.setStatus(true);        	
+        	if(user.getRole().getRoleName().equals("Admin")){
+        		map.put("name", user.getName());
+        		map.put("roleID", user.getRole().getId());
+        	}else if(user.getRole().getRoleName().equals("Teacher")){
+        		map.put("teacherName", user.getName());
+        		map.put("roleId", user.getRole().getId());
+        		map.put("userId", user.getId());        		
+        	}else if(user.getRole().getRoleName().equals("Parent")){
+        		
+        		Student student = (Student) session.get(Student.class, user.getStId());
+        		
+        		Criteria criteria = session.createCriteria(Section.class).add(Restrictions.eq("id", user.getSectionId())).add(Restrictions.eq("classes.id", user.getClassId()));
+        		Section section = (Section) criteria.uniqueResult();
+        		
+        		map.put("parentName", user.getName());
+        		map.put("roleId", user.getRole().getId());
+        		map.put("userId", user.getId()); 
+        		map.put("studentName", student.getFirstName());
+        		map.put("class", section.getClasses().getClassName());
+        		map.put("section",section.getSectionName());
+        		
+        	}
+        	
+        	resultData.map = map;
+        	resultData.status = true;
+        	resultData.message = "User loggedin successfully";
         }else{
-        	userDetails.setMessage("userName/password wrong");
-        	userDetails.setStatus(false);
+        	resultData.map = null;
+        	resultData.status = false;
+        	resultData.message = "userName/password incorrect";
         }
 		}catch(Exception e){
-			
-			userDetails.setMessage("Some thing went wrong please contact your admin");
-        	userDetails.setStatus(false);
+			resultData.map = null;
+        	resultData.status = false;
+        	resultData.message = "Some thing went wrong please contact your admin";
 		}
          session.close();
-		return userDetails;
+		return resultData;
 	}
 
 	@Override

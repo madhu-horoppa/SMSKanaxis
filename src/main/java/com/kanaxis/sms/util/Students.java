@@ -8,7 +8,7 @@ public class Students {
 	public String classes;
 	public String firstName;
 	public String lastName;
-	public Integer rollNumber;
+	public String rollNumber;
 	public String dateOfBirth;
 	public String gender;
 	public String bloodGroup;
@@ -19,25 +19,25 @@ public class Students {
 	public String localAddress;
 	public String city;
 	public String state;
-	public Double pincode;
+	public String pincode;
 	public String permAddress;
 	public String permCity;
 	public String permState;
-	public Double permPincode;
+	public String permPincode;
 	public String motherFullName;
 	public String motherOccupation;
 	public String motherEducation;
 	public String fatherFullName;
 	public String fatherOccupation;
-	public Double totalIncome;
+	public String totalIncome;
 	public String primaryContactNumber;
 	public String secondaryContactNumber;
 	public String email;
 	public String joinedDate;
 	public String createdDate;
 	public String fatherEducation;
-	public Boolean physicalDisability;
-	public Boolean parentAsGuardian;
+	public String physicalDisability;
+	public String parentAsGuardian;
 	public Integer getId() {
 		return id;
 	}
@@ -68,10 +68,10 @@ public class Students {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public Integer getRollNumber() {
+	public String getRollNumber() {
 		return rollNumber;
 	}
-	public void setRollNumber(Integer rollNumber) {
+	public void setRollNumber(String rollNumber) {
 		this.rollNumber = rollNumber;
 	}
 	public String getDateOfBirth() {
@@ -134,10 +134,10 @@ public class Students {
 	public void setState(String state) {
 		this.state = state;
 	}
-	public Double getPincode() {
+	public String getPincode() {
 		return pincode;
 	}
-	public void setPincode(Double pincode) {
+	public void setPincode(String pincode) {
 		this.pincode = pincode;
 	}
 	public String getPermAddress() {
@@ -158,10 +158,10 @@ public class Students {
 	public void setPermState(String permState) {
 		this.permState = permState;
 	}
-	public Double getPermPincode() {
+	public String getPermPincode() {
 		return permPincode;
 	}
-	public void setPermPincode(Double permPincode) {
+	public void setPermPincode(String permPincode) {
 		this.permPincode = permPincode;
 	}
 	public String getMotherFullName() {
@@ -194,10 +194,10 @@ public class Students {
 	public void setFatherOccupation(String fatherOccupation) {
 		this.fatherOccupation = fatherOccupation;
 	}
-	public Double getTotalIncome() {
+	public String getTotalIncome() {
 		return totalIncome;
 	}
-	public void setTotalIncome(Double totalIncome) {
+	public void setTotalIncome(String totalIncome) {
 		this.totalIncome = totalIncome;
 	}
 	public String getPrimaryContactNumber() {
@@ -236,17 +236,59 @@ public class Students {
 	public void setFatherEducation(String fatherEducation) {
 		this.fatherEducation = fatherEducation;
 	}
-	public Boolean getPhysicalDisability() {
+	public String getPhysicalDisability() {
 		return physicalDisability;
 	}
-	public void setPhysicalDisability(Boolean physicalDisability) {
+	public void setPhysicalDisability(String physicalDisability) {
 		this.physicalDisability = physicalDisability;
 	}
-	public Boolean getParentAsGuardian() {
+	public String getParentAsGuardian() {
 		return parentAsGuardian;
 	}
-	public void setParentAsGuardian(Boolean parentAsGuardian) {
+	public void setParentAsGuardian(String parentAsGuardian) {
 		this.parentAsGuardian = parentAsGuardian;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((classes == null) ? 0 : classes.hashCode());
+		//result = prime * result + ((email == null) ? 0 : email.toLowerCase().hashCode());
+		result = prime * result	+ ((rollNumber == null) ? 0 : rollNumber.hashCode());
+		result = prime * result + ((section == null) ? 0 : section.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Students other = (Students) obj;
+		if (rollNumber == null) {
+			if (other.rollNumber != null)
+				return false;
+		} else if (!rollNumber.equals(other.rollNumber))
+			return false;		
+ 		if (classes == null) {
+			if (other.classes != null)
+				return false;
+		} else if (!classes.equals(other.classes))
+			return false;
+		if (section == null) {
+			if (other.section != null)
+				return false;
+		} else if (!section.equals(other.section))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "Students [section=" + section + ", classes=" + classes
+				+ ", firstName=" + firstName + ", rollNumber=" + rollNumber
+				+ "]";
 	}
 	
 	

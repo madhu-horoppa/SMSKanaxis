@@ -1,5 +1,6 @@
 package com.kanaxis.sms.services.impl;
 
+import java.util.Set;
 import java.util.Vector;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class StudentServiceImpl implements StudentService{
 	StudentDao studentDao;
 
 	@Override
-	public ResultData uploadStudents(Vector vector) {
+	public ResultData uploadStudents(Vector<Set> vector) {
 		return studentDao.uploadStudents(vector);
 	}
 

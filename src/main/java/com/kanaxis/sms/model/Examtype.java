@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Sep 17, 2015 6:41:17 PM by Hibernate Tools 3.4.0.CR1
+// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,13 +23,18 @@ public class Examtype implements java.io.Serializable {
 	private Integer id;
 	private String exType;
 	private Set<Examschedule> examschedules = new HashSet<Examschedule>(0);
+	private Set<MarksTable> marksTables = new HashSet<MarksTable>(0);
+	private Set<TotalMarks> totalMarkses = new HashSet<TotalMarks>(0);
 
 	public Examtype() {
 	}
 
-	public Examtype(String exType, Set<Examschedule> examschedules) {
+	public Examtype(String exType, Set<Examschedule> examschedules,
+			Set<MarksTable> marksTables, Set<TotalMarks> totalMarkses) {
 		this.exType = exType;
 		this.examschedules = examschedules;
+		this.marksTables = marksTables;
+		this.totalMarkses = totalMarkses;
 	}
 
 	@Id
@@ -59,6 +64,24 @@ public class Examtype implements java.io.Serializable {
 
 	public void setExamschedules(Set<Examschedule> examschedules) {
 		this.examschedules = examschedules;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "examtype")
+	public Set<MarksTable> getMarksTables() {
+		return this.marksTables;
+	}
+
+	public void setMarksTables(Set<MarksTable> marksTables) {
+		this.marksTables = marksTables;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "examtype")
+	public Set<TotalMarks> getTotalMarkses() {
+		return this.totalMarkses;
+	}
+
+	public void setTotalMarkses(Set<TotalMarks> totalMarkses) {
+		this.totalMarkses = totalMarkses;
 	}
 
 }

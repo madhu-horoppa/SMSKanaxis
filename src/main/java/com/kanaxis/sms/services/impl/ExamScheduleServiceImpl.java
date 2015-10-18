@@ -22,6 +22,24 @@ public class ExamScheduleServiceImpl implements ExamScheduleService{
 		return examScheduleDao.viewAllExamSchedules(class_id, examType_id);
 	}
 
+	@Override
+	public ResultData getExamDetailsById(String exam_id) {
+		return examScheduleDao.getExamDetailsById(exam_id);
+	}
+
+	@Override
+	public ResultData updateExamDetails(String class_id, String examType_id, String subject_id, String dateOfExam,
+			String startTime, String endTime, String exam_id) {
+		return examScheduleDao.updateExamDetails(class_id, examType_id, subject_id, dateOfExam, startTime, endTime, exam_id);
+	}
+
+	@Override
+	public ResultData getExamTypes() {
+		return examScheduleDao.getExamTypes();
+	}
+
+	
+
 	
 
 }

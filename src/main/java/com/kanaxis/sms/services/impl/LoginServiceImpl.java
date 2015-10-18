@@ -13,7 +13,7 @@ public class LoginServiceImpl implements LoginService{
 	LoginDao loginDao;
 
 	@Override
-	public UserDetails login(String userName, String password) throws Exception {
+	public ResultData login(String userName, String password) throws Exception {
 		// TODO Auto-generated method stub
 		return loginDao.login(userName,password);
 	}

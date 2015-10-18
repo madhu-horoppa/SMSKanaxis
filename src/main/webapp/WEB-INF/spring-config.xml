@@ -48,15 +48,15 @@
 				<value>com.kanaxis.sms.model.TransactionReport</value>
 				<value>com.kanaxis.sms.model.User</value>
 				<value>com.kanaxis.sms.model.WeekwiseAttendance</value>
-
+				<value>com.kanaxis.sms.model.TotalMarks</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
 				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.hbm2ddl.auto">update</prop>
-				<prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+				<!--<prop key="hibernate.jdbc.batch_versioned_data">true</prop> -->
 			</props>
 		</property>
 	</bean>
@@ -93,5 +93,11 @@
 	<bean id="SubjectService" class="com.kanaxis.sms.services.impl.SubjectServiceImpl"></bean>
 	<bean id="classSubjectTeacherMappingDao" class="com.kanaxis.sms.dao.impl.ClassSubjectTeacherMappingDaoImpl"></bean>
 	<bean id="classSubjectTeacherMappingService" class="com.kanaxis.sms.services.impl.ClassSubjectTeacherMappingServiceImpl"></bean>
+	<bean id="transactionDao" class="com.kanaxis.sms.dao.impl.TransactionDaoImpl"></bean>
+	<bean id="transactionService" class="com.kanaxis.sms.services.impl.TransactionServiceImpl"></bean>
+	<bean id="attendanceDao" class="com.kanaxis.sms.dao.impl.AttendanceDaoImpl"></bean>
+	<bean id="attendanceService" class="com.kanaxis.sms.services.impl.AttendanceServiceImpl"></bean>
+	<bean id="marksDao" class="com.kanaxis.sms.dao.impl.MarksDaoImpl"></bean>
+	<bean id="marksService" class="com.kanaxis.sms.services.impl.MarksServiceImpl"></bean>
 	
 </beans>

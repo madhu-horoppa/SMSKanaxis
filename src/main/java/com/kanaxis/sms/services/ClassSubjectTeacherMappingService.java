@@ -9,4 +9,7 @@ public interface ClassSubjectTeacherMappingService {
 	ResultData getAllClassSubjectTeacherMappings(String class_id,
 			String section_id);
 
+	ResultData updateClassSubjectTeacherMapping(String class_id,
+			String subject_id, String teacher_id, String section_id, String mapping_id);
+
 }

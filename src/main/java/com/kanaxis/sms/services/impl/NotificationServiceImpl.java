@@ -18,10 +18,22 @@ public class NotificationServiceImpl implements NotificationService{
 	}
 
 	@Override
-	public ResultData getNotifications() {
+	public ResultData getSentNotifications(String user_id) {
 		// TODO Auto-generated method stub
-		return notificationDao.getNotifications();
+		return notificationDao.getSentNotifications(user_id);
 	}
+
+	@Override
+	public ResultData getNotifications(String id) {
+		return notificationDao.getNotifications(id);
+	}
+
+	@Override
+	public ResultData getMessageTypes() {
+		return notificationDao.getMessageTypes();
+	}
+
+	
 	
 
 }

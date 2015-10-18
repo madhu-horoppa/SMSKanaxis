@@ -10,4 +10,7 @@ public interface SubjectDao {
 
 	public ResultData getSubjectsByClass(String class_id);
 
+	public ResultData updateSubjects(String class_id, String subjectName,
+			String subject_id);
+
 }

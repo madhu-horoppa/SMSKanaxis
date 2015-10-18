@@ -1,14 +1,20 @@
+
 package com.kanaxis.sms.controller;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,12 +25,9 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.QueryParam;
 
 import org.apache.log4j.Logger;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -39,21 +42,24 @@ import com.kanaxis.sms.model.Admission;
 import com.kanaxis.sms.model.Employee;
 import com.kanaxis.sms.model.Status;
 import com.kanaxis.sms.services.AdmissionService;
+import com.kanaxis.sms.services.AttendanceService;
 import com.kanaxis.sms.services.ClassSubjectTeacherMappingService;
 import com.kanaxis.sms.services.DataServices;
 import com.kanaxis.sms.services.ExamScheduleService;
 import com.kanaxis.sms.services.LoginService;
+import com.kanaxis.sms.services.MarksService;
 import com.kanaxis.sms.services.NotificationService;
 import com.kanaxis.sms.services.SectionService;
 import com.kanaxis.sms.services.StudentService;
 import com.kanaxis.sms.services.SubjectService;
 import com.kanaxis.sms.services.TeacherService;
 import com.kanaxis.sms.services.TimeTableService;
-import com.kanaxis.sms.util.ExamSchedule;
-import com.kanaxis.sms.util.Person;
+import com.kanaxis.sms.services.TransactionService;
+import com.kanaxis.sms.util.Marks;
 import com.kanaxis.sms.util.ResultData;
+import com.kanaxis.sms.util.StudentMarks;
 import com.kanaxis.sms.util.Students;
-import com.kanaxis.sms.util.UserDetails;
+import com.kanaxis.sms.util.TotalMarks;
 
 @Controller
 @RequestMapping("/sms")
@@ -85,6 +91,15 @@ public class RestController {
 	
 	@Autowired
 	ClassSubjectTeacherMappingService classSubjectTeacherMappingService;
+	
+	@Autowired
+	TransactionService transactionService;
+	
+	@Autowired
+	AttendanceService attendanceService;
+	
+	@Autowired
+	MarksService marksService;
 	
 	
 
@@ -152,25 +167,29 @@ public class RestController {
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public @ResponseBody
-	UserDetails login(@FormParam("userName") String userName,@FormParam("password") String password) {
-		UserDetails userDetails = new UserDetails();
+	Map login(@FormParam("userName") String userName,@FormParam("password") String password) {
 		ResultData resultData = new ResultData();
+		Map mapData = new LinkedHashMap();
 		
 		try {
 			resultData = checkValidationForLogin(userName, password);
 			if(resultData.status){
-			userDetails = loginService.login(userName,password);
+				resultData = loginService.login(userName,password);
+				mapData.put("loginDetails", resultData.map);
+				mapData.put("status", resultData.status);
+				mapData.put("message", resultData.message);
+			
 		}else{
-			userDetails.setMessage(resultData.message);
-			userDetails.setStatus(resultData.status);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
 		}
 			
 		} catch (Exception e) {
-			userDetails.setMessage("Some thing went wrong please contact your admin");
-        	userDetails.setStatus(false);
+			mapData.put("status", false);
+			mapData.put("message", "Some thing went wrong please contact your admin");
 		}
 		
-		return userDetails;
+		return mapData;
 
 	}
 	
@@ -183,13 +202,13 @@ public class RestController {
 	public ResultData checkValidationForLogin(String userName, String password){
 		ResultData resultData = new ResultData();
 		resultData.status=true;
-		if(userName.isEmpty() && userName == ""){
+		if(userName.isEmpty()){
 			resultData.status=false;
 			resultData.message="Username is mandatory";
 			return resultData;
 			
 		}
-		if(password.isEmpty() && password == ""){
+		if(password.isEmpty()){
 			resultData.status=false;
 			resultData.message="Password is mandatory";
 			return resultData;
@@ -261,7 +280,7 @@ public class RestController {
         ResultData resultData = new ResultData();
         try {
         	resultData = timeTableService.getTimeTable(classId, sectionId); 
-        	mapData.put("timeTable", resultData.listData);
+        	mapData.put("timeTable", resultData.map);
 			mapData.put("message", resultData.message);
 			mapData.put("status", resultData.status);
 
@@ -330,14 +349,14 @@ public class RestController {
 	 */
 	@RequestMapping(value = "/addNotifications", method = RequestMethod.POST)
 	public @ResponseBody
-	Map addNotifications(@FormParam("fromId") String fromId,@FormParam("messageTypeId") String messageTypeId,
+	Map addNotifications(@FormParam("userId") String userId,@FormParam("messageTypeId") String messageTypeId,
 			                      @FormParam("message") String message,@FormParam("toId") String toId, 
 			                      @FormParam("classId") String classId, @FormParam("sectionId") String sectionId) {
 		ResultData resultData = new ResultData();
 		Map mapData = new HashMap();
 		
 		try {
-			 resultData = notificationService.addNotifications(fromId,messageTypeId,message,toId,classId,sectionId);
+			 resultData = notificationService.addNotifications(userId,messageTypeId,message,toId,classId,sectionId);
 			 mapData.put("status", resultData.status);
 			 mapData.put("message",resultData.message);
 			 
@@ -360,14 +379,14 @@ public class RestController {
 	 * @param password
 	 * @return
 	 */
-	@RequestMapping(value = "/getAdminNotifications", method = RequestMethod.GET)
+	@RequestMapping(value = "/getSentNotifications", method = RequestMethod.GET)
 	public @ResponseBody
-	Map getAdminNotifications() {
+	Map getSentNotifications(@QueryParam("userId") String userId) {
 		ResultData resultData = new ResultData();
 		Map mapData = new HashMap();
 		
 		try {
-			 resultData = notificationService.getNotifications();
+			 resultData = notificationService.getSentNotifications(userId);
 			 mapData.put("notificationDetails", resultData.listData);
 			 mapData.put("status", resultData.status);
 			 mapData.put("message",resultData.message);
@@ -580,20 +599,23 @@ public class RestController {
 	}
 	
 	/**
-	 * To add Students
-	 * @param userName
-	 * @param password
+	 * to upload students
+	 * @param file
 	 * @return
 	 */
+	
 	@RequestMapping(value = "/uploadStudents", method = RequestMethod.POST)
 	public @ResponseBody Map uploadStudents(
 			@FormParam("file") MultipartFile file) {
 
 		ResultData resultData = new ResultData();
 		Map mapData = new HashMap();
-		Properties prop = new Properties();
-		InputStream input = null;
-		Vector<List> cellVectorHolder = new Vector<List>();
+		//Vector<List> cellVectorHolder = new Vector<List>();
+		List<Students> duplicateList=null;
+		Set<Students>  studentsMap= new HashSet();
+		duplicateList=new ArrayList<Students>();
+		Vector<Set> cellVectorHolder = new Vector<Set>();
+		
 
 		try {
 
@@ -603,18 +625,30 @@ public class RestController {
 			Iterator rowIter = mySheet.rowIterator();
 			while (rowIter.hasNext()) {
 				XSSFRow myRow = (XSSFRow) rowIter.next();
-				Iterator cellIter = myRow.cellIterator();
-				List list = new ArrayList();
-				Set set = new HashSet();
-				while (cellIter.hasNext()) {
-					XSSFCell myCell = (XSSFCell) cellIter.next();
-					list.add(myCell);
-
+				//studentsSet = new HashSet();
+				Students currentObj=getStudentObj(myRow);
+				if(studentsMap.contains(currentObj)){
+					duplicateList.add(currentObj);
+					mapData.put("duplicateList", duplicateList);
+					mapData.put("status", false);
+					mapData.put("message", "Rolle number, class and section combination is duplicated plase check the list");
+					return mapData;
+				}else{
+					boolean isEmailUnique = checkEmailUniquness(currentObj.getEmail().toLowerCase(),studentsMap);
+					if(!isEmailUnique){
+						mapData.put("duplicateList", null);
+						mapData.put("status", false);
+						mapData.put("message", "email "+currentObj.getEmail().toLowerCase()+" is duplicated");
+						return mapData;
+						//duplicateList.add(currentObj);
+					}
+					else{
+						studentsMap.add(currentObj);
+					}
 				}
-
-				cellVectorHolder.addElement(list);
+				
 			}
-			//cellVectorHolder = checkDuplicatesorUloadStudent(cellVectorHolder);
+			cellVectorHolder.add(studentsMap);
 			resultData = studentService.uploadStudents(cellVectorHolder);
 			mapData.put("duplicateList", resultData.listData);
 			mapData.put("status", resultData.status);
@@ -629,7 +663,68 @@ public class RestController {
 
 	}
 	
-	public Vector checkDuplicatesorUloadStudent(Vector<List> vector){
+	/**
+	 * To check duplicate email
+	 * @param lowerCaseEmail
+	 * @param studentsSet
+	 * @return
+	 */
+	private boolean checkEmailUniquness(String lowerCaseEmail,Set<Students> studentsSet)
+	{
+		for(Students obj: studentsSet){
+			if(lowerCaseEmail.equalsIgnoreCase(obj.getEmail())){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * To check duplicate roll number
+	 * @param myRow
+	 * @return
+	 */
+	private Students getStudentObj(XSSFRow myRow){
+		Students returnObj = new Students();
+		returnObj.setFirstName(myRow.getCell(0).getStringCellValue());
+		returnObj.setLastName(myRow.getCell(1).getStringCellValue());
+		returnObj.setRollNumber(String.valueOf(myRow.getCell(2).getNumericCellValue()));
+		returnObj.setDateOfBirth(myRow.getCell(3).getStringCellValue());
+		returnObj.setGender(myRow.getCell(4).getStringCellValue());
+		returnObj.setBloodGroup(myRow.getCell(5).getStringCellValue());
+		returnObj.setRelegion(myRow.getCell(6).getStringCellValue());
+		returnObj.setCastCategory(myRow.getCell(7).getStringCellValue());
+		returnObj.setSubcast(myRow.getCell(8).getStringCellValue());
+		returnObj.setPhysicalDisability(String.valueOf(myRow.getCell(9).getBooleanCellValue()));
+		returnObj.setMotherTongue(myRow.getCell(10).getStringCellValue());
+		returnObj.setLocalAddress(myRow.getCell(11).getStringCellValue());
+		returnObj.setCity(myRow.getCell(12).getStringCellValue());
+		returnObj.setState(myRow.getCell(13).getStringCellValue());
+		returnObj.setPincode(String.valueOf(myRow.getCell(14).getNumericCellValue()));
+		returnObj.setPermAddress(myRow.getCell(15).getStringCellValue());
+		returnObj.setPermCity(myRow.getCell(16).getStringCellValue());
+		returnObj.setPermState(myRow.getCell(17).getStringCellValue());
+		returnObj.setPermPincode(String.valueOf(myRow.getCell(18).getNumericCellValue()));
+		returnObj.setMotherFullName(myRow.getCell(19).getStringCellValue());
+		returnObj.setMotherOccupation(myRow.getCell(20).getStringCellValue());
+		returnObj.setMotherEducation(myRow.getCell(21).getStringCellValue());
+		returnObj.setFatherFullName(myRow.getCell(22).getStringCellValue());
+		returnObj.setFatherOccupation(myRow.getCell(23).getStringCellValue());
+		returnObj.setFatherEducation(myRow.getCell(24).getStringCellValue());
+		returnObj.setTotalIncome(String.valueOf(myRow.getCell(25).getNumericCellValue()));
+		returnObj.setParentAsGuardian(String.valueOf(myRow.getCell(26).getBooleanCellValue()));
+		returnObj.setPrimaryContactNumber(String.valueOf(myRow.getCell(27).getNumericCellValue()));
+		returnObj.setSecondaryContactNumber(String.valueOf(myRow.getCell(28).getNumericCellValue()));
+		returnObj.setEmail(myRow.getCell(29).getStringCellValue());
+		returnObj.setJoinedDate(myRow.getCell(30).getStringCellValue());
+		returnObj.setClasses(myRow.getCell(31).getStringCellValue());
+		returnObj.setSection(myRow.getCell(32).getStringCellValue());		
+		
+		
+		 return returnObj;		
+	}
+	
+	/*public Vector checkDuplicatesorUloadStudent(Vector<List> vector){
 		ResultData resultData = new ResultData();
 		List<Person> personsList = new ArrayList<Person>();
 		resultData.status = true;
@@ -648,7 +743,7 @@ public class RestController {
 		return vector;
 		
 		
-	}
+	}*/
 	
 	/**
 	 * To get all Students
@@ -858,21 +953,17 @@ public class RestController {
 	 * @return
 	 */
 	@RequestMapping(value = "/addSection", method = RequestMethod.POST)
-	public @ResponseBody Map addSection(@FormParam("class_id") String class_id, @FormParam("sectionName") String sectionName) {
+	public @ResponseBody Map addSection(@RequestBody String sectionJson) {
 
 		ResultData resultData = new ResultData();
 		Map mapData = new HashMap();
 
 		try {
-			resultData = checkValidationForAddSection(class_id, sectionName);
-			if(resultData.status){
-			resultData = sectionService.addSection(class_id, sectionName);
+			//resultData = checkValidationForAddSection(class_id, sectionName);
+			resultData = sectionService.addSection(sectionJson);
 			mapData.put("status", resultData.status);
 			mapData.put("message", resultData.message);
-			}else {
-				mapData.put("status", resultData.status);
-				mapData.put("message", resultData.message);
-			}
+			
 		} catch (Exception e) {
 			mapData.put("status", false);
 			mapData.put("message",
@@ -889,7 +980,7 @@ public class RestController {
 	 * @param sectionName
 	 * @return
 	 */
-	public ResultData checkValidationForAddSection(String classid, String sectionName){
+	/*public ResultData checkValidationForAddSection(String classid, String sectionName){
 		ResultData resultData = new ResultData();
 		resultData.status = true;
 		
@@ -904,7 +995,7 @@ public class RestController {
 			return resultData;
 		}
 		return resultData;
-	}
+	}*/
 	
 	/**
 	 * to get all sections
@@ -934,6 +1025,37 @@ public class RestController {
 		
 
 	}
+	
+	/**
+	 * to get section by class
+	 * @return
+	 */
+	@RequestMapping(value = "/getSectionByClass", method = RequestMethod.GET)
+	public @ResponseBody
+	Map getSectionByClass(@QueryParam("class_id") String class_id) {
+		
+		ResultData resultData = new ResultData();
+		Map mapData = new LinkedHashMap();		
+			
+	            try { 	            	
+	               resultData = sectionService.getSectionByClass(class_id);
+	               mapData.put("sectionDetails", resultData.map);
+	                mapData.put("status", resultData.status);
+	                mapData.put("message", resultData.message);
+	            	
+	            } catch (Exception e) {
+	            	mapData.put("sectionDetails", null);
+	            	mapData.put("status", false);
+	   			 mapData.put("message","Some thing went wrong please contact your admin");
+	            }
+					
+		
+		return mapData;
+		
+
+	}
+	
+	
 	
 	/**
 	 * To add subjects
@@ -1284,5 +1406,655 @@ public class RestController {
 		}
 		return mapData;
 	}
+	
+	/**
+	 * To get all classes
+	 * @return
+	 */
+	@RequestMapping(value = "/getAllClasses", method = RequestMethod.GET)
+	public @ResponseBody
+	Map getAllClasses(){
+		
+		ResultData resultData = new ResultData();
+		Map mapData = new LinkedHashMap();
+		try{
+			resultData = sectionService.getAllClasses();
+			mapData.put("classDetails", resultData.map);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		}catch(Exception e){
+			mapData.put("classDetails", null);
+			mapData.put("status", false);
+  			 mapData.put("message","Some thing went wrong please contact your admin");
+		}
+		return mapData;
+		
+	}
+	
+	/**
+	 * To add Timetable
+	 * @return
+	 */
+	@RequestMapping(value = "/addTimeTable", method = RequestMethod.POST)
+	public @ResponseBody
+	Map addTimeTable(@RequestBody String timetableJson) {
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try {
+        	resultData = timeTableService.addTimeTable(timetableJson); 
+			mapData.put("message", resultData.message);
+			mapData.put("status", resultData.status);
+
+		} catch (Exception e) {
+			mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+		}		       
+
+		return mapData;
+	}
+	
+	
+	/**
+	 * 
+	 * @param teacher_id
+	 * @return
+	 */
+	@RequestMapping(value = "/getNotificationsForInbox", method = RequestMethod.GET)
+	public @ResponseBody
+	Map getNotificationsForInbox(@QueryParam("user_id") String user_id) {
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try {
+        	resultData = notificationService.getNotifications(user_id); 
+        	mapData.put("notifications", resultData.listData);
+			mapData.put("message", resultData.message);
+			mapData.put("status", resultData.status);
+
+		} catch (Exception e) {
+			mapData.put("notifications", null);
+			mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+		}		       
+
+		return mapData;
+	}
+	
+	/**
+	 * To add transactions
+	 * @param transactionJson
+	 * @return
+	 */
+	@RequestMapping(value = "/addTransactionReport", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map addTransactionReport(@RequestBody String transactionJson){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{
+        	
+        	resultData = transactionService.addTransactionReport(transactionJson);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get transactions
+	 * @param class_id
+	 * @param section_id
+	 * @param subject_id
+	 * @return
+	 */
+	@RequestMapping(value = "/getTransactionReport", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map getTransactionReport(@QueryParam("class_id") String class_id, @QueryParam("section_id") String section_id, @QueryParam("subject_id") String subject_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{
+        	
+        	resultData = transactionService.getTransactionReport(class_id, section_id, subject_id);
+        	mapData.put("transactionDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("transactionDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	
+	/**
+	 * To add addAttendance
+	 * @param transactionJson
+	 * @return
+	 */
+	@RequestMapping(value = "/addAttendance", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map addAttendance(@RequestBody String attendenceJson){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{
+        	
+        	resultData = attendanceService.addAttendance(attendenceJson);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get absenties list
+	 * @param class_id
+	 * @param section_id
+	 * @return
+	 */
+	@RequestMapping(value = "/getAttendance", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map getAttendance(@QueryParam("class_id") String class_id, @QueryParam("section_id") String section_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = attendanceService.getAttendance(class_id, section_id);
+        	mapData.put("absentiesDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("absentiesDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * to upload marks
+	 * @param file
+	 * @return
+	 */
+	
+	@RequestMapping(value = "/uploadMarks", method = RequestMethod.POST)
+	public @ResponseBody Map uploadMarks(@FormParam("class_id") String class_id, @FormParam("section_id") String section_id,
+			                              @FormParam("examType_id") String examType_id, @FormParam("file") MultipartFile file) {
+
+		ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+		//Vector<List> cellVectorHolder = new Vector<List>();
+		List<Marks> duplicateList=null;
+		Set<Marks>  marksMap= new LinkedHashSet();
+		duplicateList=new ArrayList<Marks>();
+		Vector<Set> cellVectorHolder = new Vector<Set>();
+		Map<String,List<StudentMarks>> map = new LinkedHashMap<String,List<StudentMarks>>();
+		Map<Double,List<StudentMarks>> totalMarksMap = new LinkedHashMap<Double,List<StudentMarks>>();
+		Map<Double,TotalMarks> totalMarksMap1 = new LinkedHashMap<Double,TotalMarks>();
+		try {
+
+			InputStream myInput = file.getInputStream();
+			XSSFWorkbook myWorkBook = new XSSFWorkbook(myInput);
+			XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+			Iterator rowIter = mySheet.rowIterator();
+			while (rowIter.hasNext()) {
+				XSSFRow myRow = (XSSFRow) rowIter.next();
+				Marks currentObj=getMarksObj(myRow);
+				if(marksMap.contains(currentObj)){
+					duplicateList.add(currentObj);
+					mapData.put("duplicateList", duplicateList);
+					mapData.put("status", false);
+					mapData.put("message", "Rolle number, subject combination is duplicated plase check the list");
+					return mapData;
+				}
+					else{
+						marksMap.add(currentObj);
+					}
+				}
+			
+			// Add student marks to map besed on subject	
+			for(Marks marks:marksMap){
+				
+				if(map.containsKey(marks.getSubject())){
+					StudentMarks studentMarks = new StudentMarks();
+					studentMarks.setMarks(Double.parseDouble(marks.getMarksObtained()));
+					studentMarks.setRollNumber(Double.parseDouble(marks.getRollNumber()));
+					studentMarks.setMaxMarks(Double.parseDouble(marks.getMaxMarks()));
+					studentMarks.setDateOfExam(marks.getDateOfExam());
+					List<StudentMarks> studentMarksList = map.get(marks.getSubject());
+					studentMarksList.add(studentMarks);
+					map.put(marks.getSubject(), studentMarksList);					
+				}else{
+					List<StudentMarks> studentMarksList = new ArrayList<StudentMarks>();
+					StudentMarks studentMarks = new StudentMarks();
+					studentMarks.setMarks(Double.parseDouble(marks.getMarksObtained()));
+					studentMarks.setRollNumber(Double.parseDouble(marks.getRollNumber()));
+					studentMarks.setMaxMarks(Double.parseDouble(marks.getMaxMarks()));
+					studentMarks.setDateOfExam(marks.getDateOfExam());
+					studentMarksList.add(studentMarks);
+					map.put(marks.getSubject(), studentMarksList);
+				}
+				
+			}
+			
+			// To sort the students based on subject marks
+			for(String marksData : map.keySet()){
+				
+				List<StudentMarks> studentMarksList = map.get(marksData);
+				Collections.sort(studentMarksList, StudentMarks.marksData);				
+			}
+			
+			
+			//Add student marks to map based on roll number
+			for(Marks marks : marksMap){				
+				//System.out.println(marksList.get(i));
+				if(totalMarksMap.containsKey(Double.parseDouble(marks.getRollNumber()))){
+					List<StudentMarks> studentMarksList = 	totalMarksMap.get(Double.parseDouble(marks.getRollNumber()));
+					StudentMarks studentMarks = new StudentMarks();
+					studentMarks.setMaxMarks(Double.parseDouble(marks.getMaxMarks()));
+					studentMarks.setMarks(Double.parseDouble(marks.getMarksObtained()));
+					studentMarksList.add(studentMarks);
+					totalMarksMap.put(Double.parseDouble(marks.getRollNumber()), studentMarksList);	
+					
+				}else{
+					StudentMarks studentMarks = new StudentMarks();
+					List<StudentMarks> studentMarksList = new ArrayList<StudentMarks>();
+					studentMarks.setMaxMarks(Double.parseDouble(marks.getMaxMarks()));
+					studentMarks.setMarks(Double.parseDouble(marks.getMarksObtained()));
+					studentMarksList.add(studentMarks);
+					totalMarksMap.put(Double.parseDouble(marks.getRollNumber()), studentMarksList);					
+				}
+				
+			}
+			
+			System.out.println(totalMarksMap);
+			// To calculate the total marks and percentage
+			List list = new ArrayList(totalMarksMap.keySet());
+			for(int key=0;key<list.size();key++){
+				double totalMarks = 0;
+				double maxMarks = 0;
+				List<StudentMarks> listMarks = totalMarksMap.get(list.get(key));
+				for(int i=0;i<listMarks.size();i++){
+					totalMarks = totalMarks+listMarks.get(i).getMarks();
+					maxMarks = maxMarks+listMarks.get(i).getMaxMarks();
+					if(i == listMarks.size()-1){
+						TotalMarks studentsTotalMarks = new TotalMarks();
+						double percentage = (totalMarks/maxMarks)*100;
+						studentsTotalMarks.setMaxMarks(maxMarks);
+						studentsTotalMarks.setTotalMarks(totalMarks);
+						studentsTotalMarks.setPercentage(percentage);						
+						//List<TotalMarks> studentsTotalMarksList = new ArrayList<TotalMarks>();
+						//studentsTotalMarksList.add(studentsTotalMarks);
+						totalMarksMap1.put((Double) list.get(key), studentsTotalMarks);
+					}
+					
+				}
+				
+			}
+			// To sort the students based on total marks
+			List<Map.Entry<Double, TotalMarks>> entryList = new ArrayList<Map.Entry<Double, TotalMarks>>(totalMarksMap1.entrySet());
+			Collections.sort(entryList, new Comparator<Map.Entry<Double, TotalMarks>>() {
+                @Override
+                public int compare(Map.Entry<Double, TotalMarks> totalMarks1,
+                                   Map.Entry<Double, TotalMarks> totalMarks2) {
+                	int  totalMarksData1 = (int) totalMarks1.getValue().getTotalMarks();
+                	int  totalMarksData2 = (int) totalMarks2.getValue().getTotalMarks();
+                    return totalMarksData2-totalMarksData1;
+                }
+            }
+        );
+			System.out.println(entryList);
+			//cellVectorHolder.add(marksMap);
+			
+			resultData = marksService.uploadMarks(class_id, section_id, examType_id, map, entryList);
+			mapData.put("duplicateList", resultData.listData);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		} catch (Exception e) {
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+		}
+
+		return mapData;
+
+	}
+	
+	/**
+	 * To check duplicate roll number
+	 * @param myRow
+	 * @return
+	 */
+	private Marks getMarksObj(XSSFRow myRow){
+		Marks returnObj = new Marks();
+		DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+		returnObj.setRollNumber(String.valueOf(myRow.getCell(0).getNumericCellValue()));
+		returnObj.setSubject(myRow.getCell(1).getStringCellValue());
+		returnObj.setMarksObtained(String.valueOf(myRow.getCell(2).getNumericCellValue()));
+		returnObj.setMaxMarks(String.valueOf(myRow.getCell(3).getNumericCellValue()));
+		returnObj.setDateOfExam(df.format(myRow.getCell(4).getDateCellValue()));
+		//returnObj.setSubjectWiseRank(String.valueOf(myRow.getCell(5).getNumericCellValue()));		
+		
+		 return returnObj;		
+	}
+	
+	/**
+	 * To get all students marks
+	 * @param class_id
+	 * @param section_id
+	 * @param examType_id
+	 * @return
+	 */
+	@RequestMapping(value = "/getAllStudentsMarks", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map getAllStudentsMarks(@QueryParam("class_id") String class_id, @QueryParam("section_id") String section_id, @QueryParam("examType_id") String examType_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = marksService.getAllStudentsMarks(class_id, section_id, examType_id);
+        	mapData.put("marksDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("marksDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get exam details by id
+	 * @param exam_id
+	 * @return
+	 */
+	@RequestMapping(value = "/getExamDetailsById", method = RequestMethod.GET)
+	public @ResponseBody 
+	Map getExamDetailsById(@QueryParam("exam_id") String exam_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = examScheduleService.getExamDetailsById(exam_id);
+        	mapData.put("examDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("marksDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update exam details
+	 * @param class_id
+	 * @param examType_id
+	 * @param subject_id
+	 * @param dateOfExam
+	 * @param startTime
+	 * @param endTime
+	 * @param exam_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateExamDetails", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateExamDetails(@FormParam("class_id") String class_id, @FormParam("examType_id") String examType_id, 
+			              @FormParam("subject_id") String subject_id, @FormParam("dateOfExam") String dateOfExam,
+			              @FormParam("startTime") String startTime, @FormParam("endTime") String endTime,@FormParam("exam_id") String exam_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = examScheduleService.updateExamDetails(class_id, examType_id, subject_id, dateOfExam, startTime, endTime, exam_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update section
+	 * @param class_id
+	 * @param section
+	 * @param section_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateSections", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateSections(@FormParam("class_id") String class_id, @FormParam("sectionName") String sectionName, @FormParam("section_id") String section_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = sectionService.updateSections(class_id, sectionName, section_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update subject
+	 * @param class_id
+	 * @param subjectName
+	 * @param subject_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateSubjects", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateSubjects(@FormParam("class_id") String class_id, @FormParam("subjectName") String subjectName, @FormParam("subject_id") String subject_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = subjectService.updateSubjects(class_id, subjectName, subject_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update class subject teacher mapping
+	 * @param class_id
+	 * @param subject_id
+	 * @param teacher_id
+	 * @param section_id
+	 * @param mapping_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateClassSubjectTeacherMapping", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateClassSubjectTeacherMapping(@FormParam("class_id") String class_id, @FormParam("subject_id") String subject_id, @FormParam("teacher_id") String teacher_id,
+			                              @FormParam("section_id") String section_id, @FormParam("mapping_id") String mapping_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = classSubjectTeacherMappingService.updateClassSubjectTeacherMapping(class_id, subject_id, teacher_id, section_id, mapping_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update class subject teacher mapping
+	 * @param class_id
+	 * @param subject_id
+	 * @param teacher_id
+	 * @param section_id
+	 * @param mapping_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateAttendance", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateAttendance(@FormParam("class_id") String class_id, @FormParam("attendance_id") String attendance_id, @FormParam("section_id") String section_id,
+			                              @FormParam("dateOfAbsent") String dateOfAbsent, @FormParam("student_id") String student_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = attendanceService.updateAttendance(class_id, attendance_id, section_id, dateOfAbsent, student_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To update marks
+	 * @param class_id
+	 * @param section_id
+	 * @param examType_id
+	 * @param dateOfExam
+	 * @param student_id
+	 * @param subject_id
+	 * @param marksObtained
+	 * @param maxMarks
+	 * @param subjectWiseRank
+	 * @param marks_id
+	 * @return
+	 */
+	@RequestMapping(value = "/updateMarks", method = RequestMethod.POST)
+	public @ResponseBody 
+	Map updateMarks(@FormParam("class_id") String class_id, @FormParam("section_id") String section_id, @FormParam("examType_id") String examType_id,
+			                              @FormParam("dateOfExam") String dateOfExam, @FormParam("student_id") String student_id, @FormParam("subject_id") String subject_id,
+			                              @FormParam("marksObtained") String marksObtained, @FormParam("maxMarks") String maxMarks,@FormParam("subjectWiseRank") String subjectWiseRank,
+			                              @FormParam("marks_id") String marks_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = marksService.updateMarks(class_id, section_id, examType_id, dateOfExam, student_id, subject_id, marksObtained, maxMarks, subjectWiseRank, marks_id);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	
+	/**
+	 * To get all exam types
+	 * @return
+	 */
+	@RequestMapping(value = "/getExamTypes", method = RequestMethod.GET)
+	public @ResponseBody Map getExamTypes(){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = examScheduleService.getExamTypes();
+        	mapData.put("examTypeDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("examTypeDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get all message types
+	 * @return
+	 */
+	@RequestMapping(value = "/getMessageTypes", method = RequestMethod.GET)
+	public @ResponseBody Map getMessageTypes(){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = notificationService.getMessageTypes();
+        	mapData.put("messageTypeDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("messageTypeDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	
+	/**
+	 * To get all message types
+	 * @return
+	 */
+	@RequestMapping(value = "/getTransactionReportForInbox", method = RequestMethod.GET)
+	public @ResponseBody Map getTransactionReportForInbox(@QueryParam("class_id") String class_id, @QueryParam("section_id") String section_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = transactionService.getTransactionReportForInbox(class_id, section_id);
+        	mapData.put("transactionDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("transactionDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get Student Marks
+	 * @return
+	 */
+	@RequestMapping(value = "/getStudentMarks", method = RequestMethod.GET)
+	public @ResponseBody Map getStudentMarks(@QueryParam("examType_id") String examType_id, @QueryParam("st_id") String st_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = marksService.getStudentMarks(examType_id, st_id);
+        	mapData.put("marksDetails", resultData.listData);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("marksDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
+	/**
+	 * To get Student Marks
+	 * @return
+	 */
+	@RequestMapping(value = "/getStudentTotalMarks", method = RequestMethod.GET)
+	public @ResponseBody Map getStudentTotalMarks(@QueryParam("examType_id") String examType_id, @QueryParam("st_id") String st_id){
+		Map mapData = new LinkedHashMap();
+        ResultData resultData = new ResultData();
+        try{        	
+        	resultData = marksService.getStudentTotalMarks(examType_id, st_id);
+        	mapData.put("totalMarksDetails", resultData.map);
+        	mapData.put("status", resultData.status);
+        	mapData.put("message", resultData.message);
+        }catch(Exception e){
+        	mapData.put("totalMarksDetails", null);
+        	mapData.put("message", "Some thing went wrong please contact your system admin");
+			mapData.put("status", false);
+        }
+		return mapData;
+	}
+	
 	
 }
