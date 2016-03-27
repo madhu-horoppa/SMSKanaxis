@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
+// Generated Nov 8, 2015 4:22:25 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -28,17 +28,22 @@ public class Attendance implements java.io.Serializable {
 	private Classes classes;
 	private Boolean status;
 	private Date dateOfAbsent;
+	private Boolean weeklyStatus;
+	private Boolean monthlyStatus;
 
 	public Attendance() {
 	}
 
 	public Attendance(Section section, Student student, Classes classes,
-			Boolean status, Date dateOfAbsent) {
+			Boolean status, Date dateOfAbsent, Boolean weeklyStatus,
+			Boolean monthlyStatus) {
 		this.section = section;
 		this.student = student;
 		this.classes = classes;
 		this.status = status;
 		this.dateOfAbsent = dateOfAbsent;
+		this.weeklyStatus = weeklyStatus;
+		this.monthlyStatus = monthlyStatus;
 	}
 
 	@Id
@@ -99,6 +104,24 @@ public class Attendance implements java.io.Serializable {
 
 	public void setDateOfAbsent(Date dateOfAbsent) {
 		this.dateOfAbsent = dateOfAbsent;
+	}
+
+	@Column(name = "weekly_status")
+	public Boolean getWeeklyStatus() {
+		return this.weeklyStatus;
+	}
+
+	public void setWeeklyStatus(Boolean weeklyStatus) {
+		this.weeklyStatus = weeklyStatus;
+	}
+
+	@Column(name = "monthly_status")
+	public Boolean getMonthlyStatus() {
+		return this.monthlyStatus;
+	}
+
+	public void setMonthlyStatus(Boolean monthlyStatus) {
+		this.monthlyStatus = monthlyStatus;
 	}
 
 }

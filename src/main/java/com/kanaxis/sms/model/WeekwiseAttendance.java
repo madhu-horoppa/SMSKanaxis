@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
+// Generated Nov 8, 2015 4:22:25 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -30,13 +30,14 @@ public class WeekwiseAttendance implements java.io.Serializable {
 	private Integer totalDaysPresent;
 	private Integer totalDaysAbsent;
 	private Integer numOfWorkingDays;
+	private Byte status;
 
 	public WeekwiseAttendance() {
 	}
 
 	public WeekwiseAttendance(Student student, String month, Integer weekNum,
 			Date dateOfAbsent, Integer totalDaysPresent,
-			Integer totalDaysAbsent, Integer numOfWorkingDays) {
+			Integer totalDaysAbsent, Integer numOfWorkingDays, Byte status) {
 		this.student = student;
 		this.month = month;
 		this.weekNum = weekNum;
@@ -44,6 +45,7 @@ public class WeekwiseAttendance implements java.io.Serializable {
 		this.totalDaysPresent = totalDaysPresent;
 		this.totalDaysAbsent = totalDaysAbsent;
 		this.numOfWorkingDays = numOfWorkingDays;
+		this.status = status;
 	}
 
 	@Id
@@ -120,6 +122,15 @@ public class WeekwiseAttendance implements java.io.Serializable {
 
 	public void setNumOfWorkingDays(Integer numOfWorkingDays) {
 		this.numOfWorkingDays = numOfWorkingDays;
+	}
+
+	@Column(name = "status")
+	public Byte getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Byte status) {
+		this.status = status;
 	}
 
 }

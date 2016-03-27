@@ -18,6 +18,7 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.kanaxis.sms.dao.StudentDao;
+import com.kanaxis.sms.model.Admission;
 import com.kanaxis.sms.model.Classes;
 import com.kanaxis.sms.model.Employee;
 import com.kanaxis.sms.model.Section;
@@ -345,6 +346,61 @@ public class StudentDaoImpl implements StudentDao{
 			resultData.object = null;
 			resultData.status = false;
 			resultData.message = "Some thing went wrong please contact your admin";
+		}
+		return resultData;
+	}
+
+	@Override
+	public ResultData updateStudent(String id, Student student) {
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
+		ResultData resultData = new ResultData();
+		Student student2 = (Student) session.get(Student.class, Integer.parseInt(id));
+		if(student2!=null){
+			Query query = session.createQuery("from Student where email=:email");
+			query.setParameter("email", student.getEmail());
+			Student studentDetails = (Student) query.uniqueResult();
+			if(studentDetails!=null && Integer.parseInt(id)==studentDetails.getId() || studentDetails==null){
+				student2.setFirstName(student.getFirstName());
+				student2.setLastName(student.getLastName());
+				student2.setRollNumber(student.getRollNumber());
+				student2.setDateOfBirth(student.getDateOfBirth());
+				student2.setGender(student.getGender());
+				student2.setBloodGroup(student.getBloodGroup());
+				student2.setRelegion(student.getRelegion());
+				student2.setCastCategory(student.getCastCategory());
+				student2.setSubcast(student.getSubcast());
+				student2.setMotherTongue(student.getMotherTongue());
+				student2.setLocalAddress(student.getLocalAddress());
+				student2.setCity(student.getCity());
+				student2.setState(student.getState());
+				student2.setPincode(student.getPincode());
+				student2.setPermAddress(student.getPermAddress());
+				student2.setPermCity(student.getPermCity());
+				student2.setPermState(student.getPermState());
+				student2.setPermPincode(student.getPermPincode());
+				student2.setMotherFullName(student.getMotherFullName());
+				student2.setMotherOccupation(student.getMotherOccupation());
+				student2.setMotherEducation(student.getMotherEducation());
+				student2.setFatherFullName(student.getFatherFullName());
+				student2.setFatherOccupation(student.getFatherOccupation());
+				student2.setFatherEducation(student.getFatherEducation());
+				student2.setTotalIncome(student.getTotalIncome());
+				student2.setPrimaryContactNumber(student.getPrimaryContactNumber());
+				student2.setSecondaryContactNumber(student.getSecondaryContactNumber());
+				student2.setEmail(student.getEmail());
+				student2.setJoinedDate(student.getJoinedDate());
+				student2.setPhysicalDisability(student.getPhysicalDisability());
+				student2.setParentAsGuardian(student.getParentAsGuardian());
+				session.update(student2);
+				tx.commit();
+				session.close();
+				resultData.status=true;
+				resultData.message = "Admission updated successfully";
+			}else{
+				resultData.status = false;
+				resultData.message = "Student already exist with this email";
+			}
 		}
 		return resultData;
 	}

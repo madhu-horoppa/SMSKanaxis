@@ -13,6 +13,7 @@
 		<log4j.version>1.2.17</log4j.version>
 		<jdk.version>1.7</jdk.version>
 		<context.path>SpringRestCrud</context.path>
+		<quartz.version>2.2.1</quartz.version>
 	</properties>
 	<build>
 		<finalName>${pom.artifactId}</finalName>
@@ -26,6 +27,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	
+	
+	
+	
 	<dependencies>
 	<dependency>
     <groupId>javax</groupId>
@@ -63,6 +69,41 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		
+		
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- Transaction dependency is required with Quartz integration -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<!-- Quartz framework -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz.version}</version>
+		</dependency>
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		<dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>

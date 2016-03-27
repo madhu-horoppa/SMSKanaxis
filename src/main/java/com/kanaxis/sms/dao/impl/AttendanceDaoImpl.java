@@ -1,5 +1,6 @@
 package com.kanaxis.sms.dao.impl;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -23,6 +25,7 @@ import com.kanaxis.sms.dao.AttendanceDao;
 import com.kanaxis.sms.model.Attendance;
 import com.kanaxis.sms.model.Section;
 import com.kanaxis.sms.model.Student;
+import com.kanaxis.sms.util.Holidays;
 import com.kanaxis.sms.util.ResultData;
 
 public class AttendanceDaoImpl implements AttendanceDao{
@@ -219,6 +222,45 @@ public class AttendanceDaoImpl implements AttendanceDao{
 			int result = query.executeUpdate();
 			resultData.status = true;
 			resultData.message = "attendance ";
+		}catch(Exception e){
+			resultData.status = false;
+			resultData.message = "Some thing went wrong please contact your admin";
+		}
+		return resultData;
+	}
+
+	@Override
+	public ResultData uploadHolidays(Set<Holidays> holidaysMap) {
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
+		ResultData resultData = new ResultData();
+		String sqlQuery = "insert into holidays(type, date, createddate)values";
+		
+		java.util.Date today = new java.util.Date();
+		java.sql.Timestamp sqlTimestamp = new Timestamp(
+				today.getTime());
+		try{
+			List<Holidays> holidaysList = new ArrayList<Holidays>(holidaysMap);
+			for(int i=0;i<holidaysList.size();i++){
+				Date date1 = new SimpleDateFormat("dd-MM-yyyy").parse(holidaysList.get(i).getDate());
+				java.sql.Date sqlDate = new java.sql.Date(date1.getTime());
+				if(i == holidaysList.size()-1){
+					sqlQuery = sqlQuery + "("+"'"+holidaysList.get(i).getHolidayType()+"'"+","+"'"+sqlDate+"'"+","+"'"+sqlTimestamp+"'"+");";
+				}else{
+				sqlQuery = sqlQuery + "("+"'"+holidaysList.get(i).getHolidayType()+"'"+","+"'"+sqlDate+"'"+","+"'"+sqlTimestamp+"'"+"),";
+				}
+			}
+			
+			System.out.println(sqlQuery);
+			Query query = session.createSQLQuery(sqlQuery);
+			int result = query.executeUpdate();
+			tx.commit();
+			session.close();
+			
+			resultData.status = true;
+			resultData.message = "Holidays uploaded successfully";
+			
+			
 		}catch(Exception e){
 			resultData.status = false;
 			resultData.message = "Some thing went wrong please contact your admin";

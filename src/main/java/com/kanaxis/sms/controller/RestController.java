@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.kanaxis.sms.model.Admission;
 import com.kanaxis.sms.model.Employee;
 import com.kanaxis.sms.model.Status;
+import com.kanaxis.sms.model.Student;
 import com.kanaxis.sms.services.AdmissionService;
 import com.kanaxis.sms.services.AttendanceService;
 import com.kanaxis.sms.services.ClassSubjectTeacherMappingService;
@@ -55,6 +56,7 @@ import com.kanaxis.sms.services.SubjectService;
 import com.kanaxis.sms.services.TeacherService;
 import com.kanaxis.sms.services.TimeTableService;
 import com.kanaxis.sms.services.TransactionService;
+import com.kanaxis.sms.util.Holidays;
 import com.kanaxis.sms.util.Marks;
 import com.kanaxis.sms.util.ResultData;
 import com.kanaxis.sms.util.StudentMarks;
@@ -2056,5 +2058,339 @@ public class RestController {
 		return mapData;
 	}
 	
+	/**
+	 * to upload students
+	 * @param file
+	 * @return
+	 */
 	
+	@RequestMapping(value = "/uploadHolidays", method = RequestMethod.POST)
+	public @ResponseBody Map uploadHolidays(
+			@FormParam("file") MultipartFile file) {
+
+		ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+		//Vector<List> cellVectorHolder = new Vector<List>();
+		List<Holidays> duplicateList=null;
+		Set<Holidays>  holidaysMap= new HashSet();
+		duplicateList=new ArrayList<Holidays>();
+		Vector<Set> cellVectorHolder = new Vector<Set>();
+		
+
+		try {
+
+			InputStream myInput = file.getInputStream();
+			XSSFWorkbook myWorkBook = new XSSFWorkbook(myInput);
+			XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+			Iterator rowIter = mySheet.rowIterator();
+			while (rowIter.hasNext()) {
+				XSSFRow myRow = (XSSFRow) rowIter.next();
+				//studentsSet = new HashSet();
+				Holidays currentObj=getHolidaysObj(myRow);
+				if(holidaysMap.contains(currentObj)){
+					duplicateList.add(currentObj);
+					mapData.put("duplicateList", duplicateList);
+					mapData.put("status", false);
+					mapData.put("message", "Data duplicated please check the data");
+					return mapData;
+				}else{
+						holidaysMap.add(currentObj);
+					}
+				}
+				
+			System.out.println(holidaysMap);
+			//cellVectorHolder.add(holidaysMap);
+			resultData = attendanceService.uploadHolidays(holidaysMap);
+			mapData.put("duplicateList", resultData.listData);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		} catch (Exception e) {
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+		}
+
+		return mapData;
+
+	}	
+
+	/**
+	 * To check duplicate roll number
+	 * @param myRow
+	 * @return
+	 */
+	private Holidays getHolidaysObj(XSSFRow myRow){
+		Holidays returnObj = new Holidays();
+		DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+		returnObj.setHolidayType(myRow.getCell(0).getStringCellValue());
+		try{
+		returnObj.setDate((myRow.getCell(1).getStringCellValue()));
+		}catch(IllegalStateException  ne){
+			returnObj.setDate(df.format(myRow.getCell(1).getDateCellValue()));
+		}
+		 return returnObj;		
+	}
+	
+	/**
+	 * To add admission details
+	 * @param employee
+	 * @return
+	 */
+	@RequestMapping(value = "/createAdmission", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Map createAdmission(@RequestBody Admission admission) {
+		ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+		try {
+			// Check validation for admission details
+			resultData = checkValidationFoAdmission(admission);
+			if(resultData.status){
+			resultData = admissionService.createAdmission(admission);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+			}else{
+				mapData.put("status", resultData.status);
+				mapData.put("message", resultData.message);
+			}
+		} catch (Exception e) {
+			
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+			
+		}
+		
+		return mapData;
+
+	}
+	
+	//To check validation for add admission details
+	public ResultData checkValidationFoAdmission(Admission admission){
+		
+		ResultData resultData = new ResultData();
+		resultData.status = true;
+		if(admission.getAdmissionNum()==null){
+			resultData.message = "Admission number is mandatory";
+			resultData.status = false;
+			return resultData;
+			}
+		if(admission.getAdmissionDate()==null){
+			resultData.message = "Admission date is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getFirstName()==null){
+			resultData.message = "First name is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getLastName()==null){
+			resultData.message = "Last name is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getClass_()==null){
+			resultData.message = "Class is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getDateOfBirth()==null){
+			resultData.message = "Date of birth is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getGender()==null){
+			resultData.message = "Gender is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getAdmissionDate()==null){
+			resultData.message = "Admission date is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getBloodGroup()==null){
+			resultData.message = "Blood group is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getBirthPlace()==null){
+			resultData.message = "Birth place is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getNationality()==null){
+			resultData.message = "Nationality is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getReligion()==null){
+			resultData.message = "Religion is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getCastCategory()==null){
+			resultData.message = "Cast category is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getMotherToungue()==null){
+			resultData.message = "Mother toungue is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getLocalAddress()==null){
+			resultData.message = "Local address is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getCity()==null){
+			resultData.message = "City is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getState()==null){
+			resultData.message = "State is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPincode()==null){
+			resultData.message = "Pincode is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermAddress()==null){
+			resultData.message = "Permanent address is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermCity()==null){
+			resultData.message = "Permanent city is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermState()==null){
+			resultData.message = "Permanent state is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermPincode()==null){
+			resultData.message = "Permanent pincode is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPhoneNumber()==null){
+			resultData.message = "Phone number is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getEmail()==null){
+			resultData.message = "email is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getMotherFullName()==null){
+			resultData.message = "Mother name is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getMotherOccupation()==null){
+			resultData.message = "Mother occupation is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getFatherFullName()==null){
+			resultData.message = "Father name is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getFatherOccupation()==null){
+			resultData.message = "Father occupation is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getFatherIncome()==null){
+			resultData.message = "Income is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermCity()==null){
+			resultData.message = "Permanent city is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermCity()==null){
+			resultData.message = "Permanent city is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermCity()==null){
+			resultData.message = "Permanent city is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		if(admission.getPermCity()==null){
+			resultData.message = "Permanent city is mandatory";
+			resultData.status = false;
+			return resultData;
+		}
+		
+		return resultData;
+		
+	}
+	
+	/**
+	 * To update admission
+	 * @param id
+	 * @param admission
+	 * @return
+	 */
+	@RequestMapping(value = "/updateAdmission/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Map updateAdmission(@PathVariable String id, @RequestBody Admission admission) {
+		ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+		try {
+			resultData = admissionService.updateAdmission(id,admission);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		} catch (Exception e) {
+			
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+			
+		}
+		
+		return mapData;
+
+	}
+	
+	/**
+	 * To update student
+	 * @param id
+	 * @param student
+	 * @return
+	 */
+	@RequestMapping(value = "/updateStudent", method = RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	void updateStudent(@RequestBody Student student) {
+		System.out.println("===================");
+		/*ResultData resultData = new ResultData();
+		Map mapData = new HashMap();
+		try {
+			resultData = studentService.updateStudent(id,student);
+			mapData.put("status", resultData.status);
+			mapData.put("message", resultData.message);
+		} catch (Exception e) {
+			
+			mapData.put("status", false);
+			mapData.put("message",
+					"Some thing went wrong please contact your admin");
+			
+		}
+		
+		return mapData;*/
+
+	}
 }

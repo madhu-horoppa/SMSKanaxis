@@ -1,6 +1,6 @@
 package com.kanaxis.sms.model;
 
-// Generated Oct 18, 2015 2:37:00 PM by Hibernate Tools 3.4.0.CR1
+// Generated Nov 8, 2015 4:22:25 PM by Hibernate Tools 3.4.0.CR1
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

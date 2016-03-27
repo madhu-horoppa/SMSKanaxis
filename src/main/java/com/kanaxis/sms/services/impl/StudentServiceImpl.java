@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.kanaxis.sms.dao.AdmissionDao;
 import com.kanaxis.sms.dao.StudentDao;
+import com.kanaxis.sms.model.Student;
 import com.kanaxis.sms.services.StudentService;
 import com.kanaxis.sms.util.ResultData;
 import com.kanaxis.sms.util.Students;
@@ -30,6 +31,12 @@ public class StudentServiceImpl implements StudentService{
 	public ResultData getStudentDetails(String student_id) {
 		// TODO Auto-generated method stub
 		return studentDao.getStudentDetails(student_id);
+	}
+
+	@Override
+	public ResultData updateStudent(String id, Student student) {
+		// TODO Auto-generated method stub
+		return studentDao.updateStudent(id, student);
 	}
 
 	
